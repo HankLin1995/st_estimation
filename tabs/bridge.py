@@ -48,10 +48,10 @@ def render_bridge_tab(edited_unit_price_df):
 
         with col1:
             width = st.number_input("寬度W (m)", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
-            length = st.number_input("長度L (m)", min_value=0.0, max_value=6.0, value=1.0, step=0.1)
+            length = st.number_input("每座長度L (m)", min_value=4.0, max_value=6.0, step=0.1)
             thickness = get_wall_thickness_bridge(width)
 
-            cnt = st.number_input("數量 (處)", min_value=0.0, value=0.0, step=0.1)
+            cnt = st.number_input("數量 (座)", min_value=0.0, value=0.0, step=0.1)
             st.write("*推估厚度T: ", thickness, " m")
 
         with col2:
@@ -66,10 +66,12 @@ def render_bridge_tab(edited_unit_price_df):
         }
         material_df = pd.DataFrame(material_data)
 
-    with st.expander(":signal_strength: 材料計算表(每處)"):
+    with st.expander(":signal_strength: 材料計算表(每座)"):
         edited_material_df = st.data_editor(material_df, use_container_width=True, hide_index=True)
 
-        merged_df = pd.merge(edited_material_df, edited_unit_price_df, on='材料')
+        merged_df = pd.merge(edited_material_df, edited_unit_price_df, on='材料', how='left')
+
+        merged_df['單價'] = merged_df['單價'].fillna(1)
         merged_df['複價'] = merged_df['數量'] * merged_df['單價']
 
         total_cost = merged_df['複價'].sum()
@@ -77,7 +79,9 @@ def render_bridge_tab(edited_unit_price_df):
     total_cost_len = int(total_cost * cnt)
 
     st.markdown("---")
-    st.write(f"每處費用:", format(int(total_cost), ','), "元")
+    st.markdown("### 	:small_red_triangle_down:費用計算")
+    st.write(f"每座費用:", format(int(total_cost), ','), "元")
     st.write("版橋數量為: " + str(cnt) + " 處")
     st.write("版橋工程費用: **" + str(format(total_cost_len, ',')) + "**元")
     st.write("	:warning: 上述費用 :red[未包含]間接費用")
+    st.session_state.bridge_cost=total_cost_len
