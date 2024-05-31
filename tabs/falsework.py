@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-def render_retaining_wall_tab(edited_retaining_wall_price_df):
+def render_falsework_tab(edited_falsework_price_df):
 
     # 初始化 foundation_prices 並更新為從基本單價表獲取的價格
     foundation_prices = {
@@ -10,7 +10,7 @@ def render_retaining_wall_tab(edited_retaining_wall_price_df):
     }
 
     # 更新 foundation_prices 中的單價
-    for index, row in edited_retaining_wall_price_df.iterrows():
+    for index, row in edited_falsework_price_df.iterrows():
         material = row['材料']
         if '鋼板樁' in material:
             length = float(material.replace('鋼板樁L=', '').replace('M', ''))
@@ -66,6 +66,6 @@ def render_retaining_wall_tab(edited_retaining_wall_price_df):
         st.markdown("### 	:small_red_triangle_down:費用計算")
         st.write(f"擋土工程費用: **{total_cost:,.0f}** 元")
         st.write(":warning: 上述費用 :red[未包含]間接費用")
-        st.session_state.retaining_wall_cost=total_cost
+        st.session_state.falsework_cost=total_cost
 
 
