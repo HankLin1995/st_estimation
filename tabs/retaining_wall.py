@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-def render_retaining_wall_tab(edited_unit_price_df):
+def render_retaining_wall_tab(edited_retaining_wall_price_df):
 
     # 初始化 foundation_prices 並更新為從基本單價表獲取的價格
     foundation_prices = {
@@ -10,13 +10,13 @@ def render_retaining_wall_tab(edited_unit_price_df):
     }
 
     # 更新 foundation_prices 中的單價
-    for index, row in edited_unit_price_df.iterrows():
+    for index, row in edited_retaining_wall_price_df.iterrows():
         material = row['材料']
         if '鋼板樁' in material:
-            length = float(material.replace('鋼板樁', '').replace('m', ''))
+            length = float(material.replace('鋼板樁L=', '').replace('M', ''))
             foundation_prices['鋼板樁'][length] = row['單價']
         elif '鋼軌樁' in material:
-            length = float(material.replace('鋼軌樁', '').replace('m', ''))
+            length = float(material.replace('鋼軌樁L=', '').replace('M', ''))
             foundation_prices['鋼軌樁'][length] = row['單價']
 
     with st.expander(":pushpin: 幾何條件:",True):
