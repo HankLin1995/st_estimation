@@ -5,9 +5,9 @@ from tabs import render_falsework_tab, render_channel_tab, render_bridge_tab, re
 
 def get_basic_price_data():
     unit_price_data = {
-        '材料': ['140kg/cm2混凝土', '210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
-        '單價': [2700, 2900, 31, 660, 550,360,790,1460],  
-        '單位': ['m3', 'm3', 'kg', 'm2', 'm2','m2','m3','m3']
+        '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
+        '單價': [2700, 2750, 2900, 31, 660, 550,360,790,1460],  
+        '單位': ['m3','m3', 'm3', 'kg', 'm2','m2','m2','m3','m3']
     }
     return pd.DataFrame(unit_price_data)
 
@@ -21,7 +21,7 @@ def get_falsework_price_data():
 def get_cost_data():
     unit_price_data = {
         '項目': ['渠道工程','版橋工程','道路工程','假設工程','擋土工程'],
-        '總價': [st.session_state.open_channel_cost,st.session_state.bridge_cost,st.session_state.road_cost,st.session_state.falsework_cost,0],  
+        '總價': [st.session_state.open_channel_cost,st.session_state.bridge_cost,st.session_state.road_cost,st.session_state.falsework_cost,st.session_state.wall_cost],  
         '單位': ['元']*5
     }
 
