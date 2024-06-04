@@ -79,7 +79,7 @@ def render_bridge_tab(edited_unit_price_df):
     total_cost_len = int(total_cost * cnt)
 
     st.markdown("---")
-    st.markdown("### 	:small_red_triangle_down:費用計算")
+    st.markdown("##### 	:small_red_triangle_down:費用計算")
     st.write(f"每座費用:", format(int(total_cost), ','), "元")
     st.write("版橋數量為: " + str(cnt) + " 處")
     st.write("版橋工程費用: **" + str(format(total_cost_len, ',')) + "**元")

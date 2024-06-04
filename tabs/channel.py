@@ -78,7 +78,7 @@ def render_channel_tab(edited_unit_price_df):
     total_cost_len = int(total_cost * length)
 
     st.markdown("---")
-    st.markdown("### 	:small_red_triangle_down:費用計算")
+    st.markdown("##### 	:small_red_triangle_down:費用計算")
     st.write(f"每進行米費用:", format(int(total_cost), ','), "元")
     st.write("渠道長度為: " + str(length) + " 米")
     st.write("渠道工程費用: **" + str(format(total_cost_len, ',')) + "**元")

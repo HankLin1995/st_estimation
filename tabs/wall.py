@@ -48,6 +48,7 @@ def render_wall_tab(edited_unit_price_df):
 
     with st.expander(":pushpin: 擋土牆幾何條件", expanded=True):
 
+        st.markdown("")
         op=st.radio("請選擇擋土牆型式", ("重力式擋土牆","懸臂式擋土牆"))
 
         # if op=="L型擋土牆(自行設定單元材料)":
@@ -83,7 +84,7 @@ def render_wall_tab(edited_unit_price_df):
 
     total_cost_len = int(total_cost * cnt)
     st.markdown("---")
-    st.markdown("### 	:small_red_triangle_down:費用計算")
+    st.markdown("##### 	:small_red_triangle_down:費用計算")
     st.write(f"每進行米費用:", format(int(total_cost), ','), "元")
     st.write("擋土牆長度為: " + str(cnt) + " M")
     st.write("擋土工程費用: **" + str(format(total_cost_len, ',')) + "**元")

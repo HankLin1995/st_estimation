@@ -63,7 +63,7 @@ def render_falsework_tab(edited_falsework_price_df):
     if not edited_df.empty:
         total_cost = edited_df['總複價 (元)'].sum()
         st.markdown("---")
-        st.markdown("### 	:small_red_triangle_down:費用計算")
+        st.markdown("##### 	:small_red_triangle_down:費用計算")
         st.write(f"擋土工程費用: **{total_cost:,.0f}** 元")
         st.write(":warning: 上述費用 :red[未包含]間接費用")
         # st.session_state.falsework_cost=total_cost
