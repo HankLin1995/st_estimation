@@ -84,4 +84,7 @@ def render_bridge_tab(edited_unit_price_df):
     st.write("版橋數量為: " + str(cnt) + " 處")
     st.write("版橋工程費用: **" + str(format(total_cost_len, ',')) + "**元")
     st.write("	:warning: 上述費用 :red[未包含]間接費用")
-    st.session_state.bridge_cost=total_cost_len
+    # st.session_state.bridge_cost=total_cost_len
+    st.session_state['costs']['bridge']['unit_cost'] = total_cost
+    st.session_state['costs']['bridge']['quantity'] = cnt
+    st.session_state['costs']['bridge']['total_cost'] = total_cost_len

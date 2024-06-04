@@ -88,4 +88,7 @@ def render_wall_tab(edited_unit_price_df):
     st.write("擋土牆長度為: " + str(cnt) + " M")
     st.write("擋土工程費用: **" + str(format(total_cost_len, ',')) + "**元")
     st.write("	:warning: 上述費用 :red[未包含]間接費用")
-    st.session_state.wall_cost=total_cost_len
+    # st.session_state.wall_cost=total_cost_len
+    st.session_state['costs']['wall']['unit_cost'] = int(total_cost)
+    st.session_state['costs']['wall']['length'] = cnt
+    st.session_state['costs']['wall']['total_cost'] = total_cost_len

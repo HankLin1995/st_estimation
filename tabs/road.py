@@ -70,4 +70,7 @@ def render_road_tab(edited_unit_price_df):
         st.markdown("### 	:small_red_triangle_down:費用計算")
         st.write(f"道路工程費用: **{total_cost:,.0f}** 元")
         st.write(":warning: 上述費用 :red[未包含]間接費用")
-        st.session_state.road_cost=total_cost
+        # st.session_state.road_cost=total_cost
+        st.session_state['costs']['road']['unit_cost'] = total_cost
+        st.session_state['costs']['road']['quantity'] = 1
+        st.session_state['costs']['road']['total_cost'] = total_cost
