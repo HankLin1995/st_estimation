@@ -171,14 +171,18 @@ def render_page2():
         # 顯示暫存的坐標
         st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
 
-        # 顯示儲存按鈕
-        if st.sidebar.button('儲存目前位置',type='primary') and len(st.session_state['coords']) < 2:
-            st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
-            st.rerun()
+    # 顯示儲存按鈕
+    if st.sidebar.button('儲存目前位置',type='primary') and len(st.session_state['coords']) < 2 :
+        st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
+        st.rerun()
 
     # 顯示儲存的坐標
     if len(st.session_state['coords']) == 2:
-        st.toast("已經選取了兩個位置",icon=":Warning:")
+        st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
+
+        if st.sidebar.button('清空所有坐標'):
+            st.session_state['coords'] = []  # 清空坐標
+            st.rerun()  # 重新運行應用以更新頁面
     #     with st.sidebar:
             # for i, coord in enumerate(st.session_state['coords']):
                 # st.markdown("---")

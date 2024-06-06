@@ -41,18 +41,32 @@ def interpolate_rebar_amount(height):
         return rebar_amounts[-1]
     else:
         return np.interp(height, heights, rebar_amounts)
+    
+def input_and_update_state(label, session_key, default_value, min_value=None, max_value=None, step=None):
+    if session_key not in st.session_state:
+        st.session_state[session_key] = default_value  # 預設值
 
+    value = st.number_input(label, min_value=min_value, max_value=max_value, value=st.session_state.get(session_key), step=step)
+    st.session_state[session_key] = value  # 更新值
+    return value
 def render_channel_tab(edited_unit_price_df):
     with st.expander(":pushpin: 明渠幾何條件", expanded=True):
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            width = st.number_input("寬度b (m)", min_value=0.0, value=1.0, step=0.1)
-            height = st.number_input("高度H (m)", min_value=0.0, max_value=3.0, value=1.0, step=0.1)
-            length = st.number_input("長度L (m)", min_value=0.0, value=0.0, step=0.1)
+            # 寬度b (m)
+            width = input_and_update_state("寬度b (m)", "channel_width", 1.0, min_value=0.0, step=0.1)
 
-            thickness=get_wall_thickness(height)
+            # 高度H (m)
+            height = input_and_update_state("高度H (m)", "channel_height", 1.0, min_value=0.0, max_value=3.0, step=0.1)
+
+            # 長度L (m)
+            length = input_and_update_state("長度L (m)", "channel_length", 0.0, min_value=0.0, step=0.1)
+
+            # 推估厚度T
+            thickness = get_wall_thickness(height)
             st.write("*推估厚度T: ", thickness, " m")
+
         with col2:
             st.image('photos/images.jpg', caption='渠道範例')
 

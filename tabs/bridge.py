@@ -41,19 +41,32 @@ def interpolate_rebar_amount_bridge(width):
         return rebar_amounts[-1]
     else:
         return np.interp(width, widths, rebar_amounts)
+    
+def input_and_update_state(label, session_key, default_value, min_value=None, max_value=None, step=None):
+    if session_key not in st.session_state:
+        st.session_state[session_key] = default_value  # 預設值
+
+    value = st.number_input(label, min_value=min_value, max_value=max_value, value=st.session_state.get(session_key), step=step)
+    st.session_state[session_key] = value  # 更新值
+    return value
 
 def render_bridge_tab(edited_unit_price_df):
     with st.expander(":pushpin: 版橋幾何條件", expanded=True):
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            width = st.number_input("寬度W (m)", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
-            length = st.number_input("每座長度L (m)", min_value=4.0, max_value=6.0, step=0.1)
+            # 寬度W (m)
+            width = input_and_update_state("寬度W (m)", "bridge_width", 1.0, min_value=0.0, max_value=5.0, step=0.1)
+
+            # 每座長度L (m)
+            length = input_and_update_state("每座長度L (m)", "bridge_length", 4.0, min_value=4.0, max_value=6.0, step=0.1)
+
+            # 數量 (座)
+            cnt = input_and_update_state("數量 (座)", "bridge_cnt", 0.0, min_value=0.0, step=0.1)
+
+            # 推估厚度T
             thickness = get_wall_thickness_bridge(width)
-
-            cnt = st.number_input("數量 (座)", min_value=0.0, value=0.0, step=0.1)
             st.write("*推估厚度T: ", thickness, " m")
-
         with col2:
             st.image('photos/images_bridge.jpg', caption='版橋範例')
 

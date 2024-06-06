@@ -49,20 +49,54 @@ def render_wall_tab(edited_unit_price_df):
     with st.expander(":pushpin: 擋土牆幾何條件", expanded=True):
 
         st.markdown("")
-        op=st.radio("請選擇擋土牆型式", ("重力式擋土牆","懸臂式擋土牆"))
+        if 'op' not in st.session_state:
+            st.session_state['op'] = "重力式擋土牆"  # 預設值
 
-        # if op=="L型擋土牆(自行設定單元材料)":
-        #     IsExpander=True
-        if op=="重力式擋土牆":
-            height_cm=st.selectbox("請輸入擋土牆高度(cm)",options=[60,70,80,90,100,110,120,150,180,200,220,250,280,300])
-            conc175,frameA,frameB=get_materials_typeA(height_cm)
-            IsExpander=False
-        elif op=="懸臂式擋土牆":
-            height_cm=st.selectbox("請輸入擋土牆高度(cm)",options=[200,220,250,300,350,400,450,500,550,600])
-            conc140,conc210,steel,frameA,frameB=get_materials_typeB(height_cm)
-            IsExpander=False
+        op_options = ["重力式擋土牆", "懸臂式擋土牆"]
+        op = st.selectbox("請選擇擋土牆型式", op_options, index=op_options.index(st.session_state['op']))
 
-        cnt=st.number_input("施作長度(m)", min_value=0.0, value=0.0, step=0.1)
+        # 更新op值
+        st.session_state['op'] = op
+
+        # 選擇擋土牆型式後的操作
+        if op == "重力式擋土牆":
+            if 'wall_height_cm' not in st.session_state:
+                st.session_state['wall_height_cm'] = 60  # 預設值
+
+            height_cm_options = [60, 70, 80, 90, 100, 110, 120, 150, 180, 200, 220, 250, 280, 300]
+
+            default_index = height_cm_options.index(st.session_state['wall_height_cm'])
+            if default_index < len(height_cm_options):
+                height_cm = st.selectbox("請輸入擋土牆高度(cm)", options=height_cm_options, index=default_index)
+            else:
+                height_cm = st.selectbox("請輸入擋土牆高度(cm)", options=height_cm_options)
+            st.session_state['wall_height_cm'] = height_cm  # 更新值
+
+            conc175, frameA, frameB = get_materials_typeA(height_cm)
+            IsExpander = False
+
+        elif op == "懸臂式擋土牆":
+            # 擋土牆高度(cm)
+            if 'wall2_height_cm' not in st.session_state:
+                st.session_state['wall2_height_cm'] = 200  # 預設值
+
+            height_cm_options = [200, 220, 250, 300, 350, 400, 450, 500, 550, 600]
+
+            default_index = height_cm_options.index(st.session_state['wall2_height_cm'])
+            if default_index < len(height_cm_options):
+                height_cm = st.selectbox("請輸入擋土牆高度(cm)", options=height_cm_options, index=default_index)
+            else:
+                height_cm = st.selectbox("請輸入擋土牆高度(cm)", options=height_cm_options)
+            st.session_state['wall2_height_cm'] = height_cm  # 更新值
+
+            conc140, conc210, steel, frameA, frameB = get_materials_typeB(height_cm)
+            IsExpander = False
+
+        if 'wall_cnt' not in st.session_state:
+            st.session_state['wall_cnt'] = 0.0  # 預設值
+
+        cnt = st.number_input("施作長度(m)", min_value=0.0, value=st.session_state.get('wall_cnt'), step=0.1)
+        st.session_state['wall_cnt'] = cnt  # 更新值
 
     material_data = {
         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土', '210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板', '其他'],
