@@ -333,7 +333,7 @@ def main():
         st.session_state['current_page'] = 'page0'
 
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.1")
+        st.title(":globe_with_meridians: 工程估算系統 V1.2")
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
         # st.markdown("---")
