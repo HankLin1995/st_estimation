@@ -131,14 +131,24 @@ def render_page0():
         """)
 
 
-    with st.expander(":mega: 給開發者的話"):
+    with st.expander(":mega: 給開發者的話(意見提供、問題回饋)"):
 
-        username=st.text_input(":small_blue_diamond: 姓名")
-        email=st.text_input(":small_blue_diamond: 電子郵件")
-        txt=st.text_area(":small_blue_diamond: 問題內容")
-        if st.button("送出"):
-            storeMSG(username,email,txt)
-            st.success("感謝你的意見回復!")
+        if 'submitted' not in st.session_state:
+            st.session_state.submitted = False
+
+        username = st.text_input(":small_blue_diamond: 姓名")
+        email = st.text_input(":small_blue_diamond: 電子郵件")
+        txt = st.text_area(":small_blue_diamond: 內容")
+
+        if not st.session_state.submitted:
+            if st.button("送出",type='primary'):
+                storeMSG(username, email, txt)
+                st.balloons()
+                st.toast("感謝你的意見回復!")
+                st.session_state.submitted = True
+                st.rerun()
+        else:
+            st.write("**:red[感謝你的意見提供! 如要繼續提供請重新整理]**")
 
     st.session_state.current_page = 'render_page0'
 
@@ -295,8 +305,6 @@ def storeMSG(username, email, txt):
         'email': email,
         'content': txt
     }
-
-    # print(data)
 
     try:
         response = requests.post(GAS_URL, json=data)
