@@ -61,7 +61,6 @@ def render_road_tab(edited_unit_price_df):
     df = pd.DataFrame(st.session_state.data2, columns=columns)
 
     edited_df2 = st.data_editor(df, hide_index=True, num_rows="dynamic")
-
     st.session_state.data2 = edited_df2.values.tolist()
 
     if not edited_df2.empty:
@@ -74,3 +73,10 @@ def render_road_tab(edited_unit_price_df):
         st.session_state['costs']['road']['unit_cost'] = total_cost
         st.session_state['costs']['road']['quantity'] = 1
         st.session_state['costs']['road']['total_cost'] = total_cost
+    else:
+        st.session_state['costs']['road']['unit_cost'] = 0
+        st.session_state['costs']['road']['quantity'] = 1
+        st.session_state['costs']['road']['total_cost'] = 0    
+        
+    
+    # st.rerun()

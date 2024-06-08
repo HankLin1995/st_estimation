@@ -70,4 +70,8 @@ def render_falsework_tab(edited_falsework_price_df):
         st.session_state['costs']['falsework']['unit_cost'] = int(total_cost)
         st.session_state['costs']['falsework']['quantity'] = 1
         st.session_state['costs']['falsework']['total_cost'] = int(total_cost)
+    else:
+        st.session_state['costs']['falsework']['unit_cost'] = 0
+        st.session_state['costs']['falsework']['quantity'] = 1
+        st.session_state['costs']['falsework']['total_cost'] =0
 
