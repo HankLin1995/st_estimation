@@ -7,6 +7,7 @@ import folium
 from streamlit_folium import st_folium
 from pyproj import Transformer
 import datetime
+import requests
 
 def get_basic_price_data():
     unit_price_data = {
@@ -93,6 +94,53 @@ def generateXLS(report):
         bytes_data = f.read()
     st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
     os.remove(output_file)
+
+def render_page0():
+    st.header(":dart:操作說明")
+
+    st.markdown("""
+                
+    ##### 報表生成流程:
+                
+    :one: 填寫基本資料
+                
+    :two: 點選施作位置
+                
+    :three: 填寫工程內容概要
+                
+    :four: 出現金額後點選左側操作按鈕"工程概要表"即可輸出 
+    """)
+    with st.expander(":mag: 工程內容填寫教學"):
+
+        st.markdown("""
+
+        **渠道工程、版橋工程、擋土牆**
+            
+            1. 選擇工程項目
+            2. 填寫幾何條件
+            3. 生成材料計算表
+            4. 如要調整可以直接修改材料計算表內容
+        
+        **道路工程、版樁工程**
+
+            1. 選擇材料類別
+            2. 填寫幾何條件
+            3. 點選新增加入工程統計表
+            4. 如要調整可以於統計表進行刪除
+                
+        """)
+
+
+    with st.expander(":mega: 給開發者的話"):
+
+        username=st.text_input(":small_blue_diamond: 姓名")
+        email=st.text_input(":small_blue_diamond: 電子郵件")
+        txt=st.text_area(":small_blue_diamond: 問題內容")
+        if st.button("送出"):
+            storeMSG(username,email,txt)
+            st.success("感謝你的意見回復!")
+
+    st.session_state.current_page = 'render_page0'
 
 def render_page1():
 
@@ -238,6 +286,31 @@ def render_page3():
                     st.text(report)
                     generateXLS(report)
 
+def storeMSG(username, email, txt):
+
+    GAS_URL = st.secrets.GAS_URL
+
+    data = {
+        'username': username,
+        'email': email,
+        'content': txt
+    }
+
+    # print(data)
+
+    try:
+        response = requests.post(GAS_URL, json=data)
+        response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
+        print(response.json())
+        return response.json()
+    except requests.exceptions.HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+        return {'success': False, 'error': str(http_err)}
+    except Exception as err:
+        print(f'Other error occurred: {err}')
+        return {'success': False, 'error': str(err)}
+
+
 def main():
     st.set_page_config(
         page_title="工程估算系統",
@@ -255,11 +328,12 @@ def main():
             'falsework': {'name':'版樁工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
         }
 
+
     if 'current_page' not in st.session_state:
-        st.session_state['current_page'] = 'page1'
+        st.session_state['current_page'] = 'page0'
 
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.0")
+        st.title(":globe_with_meridians: 工程估算系統 V1.1")
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
         # st.markdown("---")
@@ -281,6 +355,8 @@ def main():
         render_page2()
     elif st.session_state.current_page == 'page3':
         render_page3()
+    else:
+        render_page0()
 
 if __name__ == "__main__":
     main()
