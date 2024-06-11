@@ -8,6 +8,7 @@ from streamlit_folium import st_folium
 from pyproj import Transformer
 import datetime
 import requests
+import json
 
 def get_basic_price_data():
     unit_price_data = {
@@ -361,6 +362,41 @@ def render_page3():
                     report = generate_cost_report(st.session_state['costs'], coe)
                     st.text(report)
                     generateXLS(report)
+                # if st.button('发送数据'):
+                #     # 发送 POST 请求
+                #     GAS_URL = 'https://script.google.com/macros/s/AKfycbz6CWS_HnAATXAMwJBJhIELbAoWsgcYJFkNxpgldA96m1SkWVeEgy4l1EyXeyW60gmK/exec'  # 替换为您的GAS WebApp URL
+
+                #     json_data = {
+                #                 "current_page": "render_page0",
+                #                 "submitted": False,
+                #                 "costs": {
+                #                 "open_channel": { "name": "渠道工程", "unit_cost": 0, "length": 0, "total_cost": 0 },
+                #                 "bridge": { "name": "版橋工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 },
+                #                 "wall": { "name": "擋土牆", "unit_cost": 0, "length": 0, "total_cost": 0 },
+                #                 "road": { "name": "道路工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 },
+                #                 "falsework": { "name": "版樁工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 }
+                #                 },
+                #                 "totalcost": 0,
+                #                 "inf": {
+                #                 "work_place": "",
+                #                 "work_place2": "",
+                #                 "work_station": "",
+                #                 "work_name": "",
+                #                 "work_benefit": "",
+                #                 "work_place_detail": "",
+                #                 "work_water_check": False,
+                #                 "work_start_date": "",
+                #                 "work_end_date": ""
+                #                 }
+                #             }
+
+                #     response = requests.post(GAS_URL, data=json.dumps(json_data))
+                    
+                #     # 显示结果
+                #     if response.status_code == 200:
+                #         st.success('数据已成功发送到 Google Sheets!')
+                #     else:
+                #         st.error(f'发送数据时出错: {response.status_code}')
 
 def storeMSG(username, email, txt):
 
@@ -383,7 +419,6 @@ def storeMSG(username, email, txt):
     except Exception as err:
         print(f'Other error occurred: {err}')
         return {'success': False, 'error': str(err)}
-
 
 def main():
     st.set_page_config(
@@ -446,6 +481,8 @@ def main():
         render_page3()
     else:
         render_page0()
+
+    print(st.session_state)
 
 if __name__ == "__main__":
     main()
