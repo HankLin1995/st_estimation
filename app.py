@@ -66,18 +66,23 @@ def generate_cost_report(costs, indirect_coefficient=0.4):
     report.append(f"間接工程費(含雜項) = 直接工程費 * {indirect_coefficient} = {indirect_cost:,.0f}元")
     report.append(f"\n總工程費 = {total_cost:,.0f}元")
 
+    st.session_state.totalcost=total_cost
+
     return "\n".join(report)
 
 def generateXLS(report):
 
-
-    if len(st.session_state['coords']) == 2:
+    if 'coords' in st.session_state and len(st.session_state['coords']) == 2:
         # Extract the coordinates
         X1 = st.session_state['coords'][0]['twd97_x']
         Y1 = st.session_state['coords'][0]['twd97_y']
         X2 = st.session_state['coords'][1]['twd97_x']
         Y2 = st.session_state['coords'][1]['twd97_y']
-
+    else:
+        # 處理 `st.session_state['coords']` 尚未初始化或長度不是2 的情況
+        # 可以在這裡設定適當的預設值或者發出警告訊息
+        X1, Y1, X2, Y2 = 0, 0, 0, 0  # 設定預設值為0，你也可以根據需求設定其他值
+        st.warning("請手動輸入兩個座標至概要表")
 
     workbook = openpyxl.load_workbook('./template/PLAN.xlsx')
     sheet = workbook["概要表"]
@@ -87,6 +92,21 @@ def generateXLS(report):
     sheet.cell(row=17,column=4).value=Y1
     sheet.cell(row=18,column=4).value=X2
     sheet.cell(row=19,column=4).value=Y2
+    sheet.cell(row=2,column=1).value=st.session_state['inf']['work_place']
+    sheet.cell(row=3,column=2).value=st.session_state['inf']['work_station']
+    sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
+    sheet.cell(row=9,column=2).value=st.session_state.totalcost
+    sheet.cell(row=14,column=2).value=st.session_state['inf']['work_benefit']
+
+    if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
+        sheet.cell(row=20,column=2).value=' (V)'
+    else:
+        sheet.cell(row=21,column=2).value=' (V)'
+
+    if st.session_state['inf']['work_water_check']==True:
+        sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （V）是    （  ）否'
+    else:
+        sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （  ）是    （V）否'
 
     output_file = 'example.xlsx'
     workbook.save(output_file)
@@ -110,6 +130,7 @@ def render_page0():
                 
     :four: 出現金額後點選左側操作按鈕"工程概要表"即可輸出 
     """)
+
     with st.expander(":mag: 工程內容填寫教學"):
 
         st.markdown("""
@@ -160,14 +181,17 @@ def render_page1():
 
     with col1:
 
-        st.text_input("工程地點")
-        st.text_input("OO分處OO站")
-        st.text_input("水路名稱")
-        st.text_input("工程效益")
-        st.radio("工程用地",options=["已取得並確認妥處","尚未取得或尚未妥處"])
-        st.checkbox("是否需要配合斷水期施工")
-
+        st.session_state['inf']['work_place'] = st.text_input("工程地點", value=st.session_state['inf']['work_place'])
+        st.session_state['inf']['work_station'] = st.text_input("OO分處OO站", value=st.session_state['inf']['work_station'])
+        st.session_state['inf']['work_name'] = st.text_input("水路名稱", value=st.session_state['inf']['work_name'])
+        st.session_state['inf']['work_benefit'] = st.text_input("工程效益", value=st.session_state['inf']['work_benefit'])
+        st.session_state['inf']['work_place_detail'] = st.radio("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"], 
+                                                            index=0 if st.session_state['inf']['work_place_detail'] != "" else 1)
+        st.session_state['inf']['work_water_check'] = st.checkbox("是否需要配合斷水期施工", 
+                                                                value=st.session_state['inf']['work_water_check'])
     with col2:
+
+        st.info("照片的部分還在開發中...")
         # Handling the upload of the first image
         uploaded_file1 = st.file_uploader("現地近照", type=["png", "jpg", "jpeg"], key='upload1')
         if uploaded_file1 is not None:
@@ -185,7 +209,15 @@ def render_page1():
         
         if 'uploaded_file2' in st.session_state:
             st.image(st.session_state.uploaded_file2, caption="現地遠照", use_column_width=True)
-
+            
+        st.markdown("---")
+        # Handling the upload of the second image
+        uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
+        if uploaded_file3 is not None:
+            st.session_state.uploaded_file3 = uploaded_file3
+        # Handling the upload of the second image
+        if 'uploaded_file3' in st.session_state:
+            st.image(st.session_state.uploaded_file3, caption="施工簡圖", use_column_width=True)
 
 def render_page2():
 
@@ -336,12 +368,24 @@ def main():
             'falsework': {'name':'版樁工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
         }
 
+    if 'totalcost' not in st.session_state:
+        st.session_state['totalcost'] = 0
+
+    if 'inf' not in st.session_state:
+        st.session_state['inf'] = {
+            'work_place': '',
+            'work_station': '',
+            'work_name': '',
+            'work_benefit': '',
+            'work_place_detail': '',
+            'work_water_check':False
+        }
 
     if 'current_page' not in st.session_state:
         st.session_state['current_page'] = 'page0'
 
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.2")
+        st.title(":globe_with_meridians: 工程估算系統 V1.3")
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
         # st.markdown("---")
