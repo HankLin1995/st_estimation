@@ -92,11 +92,11 @@ def generateXLS(report):
     sheet.cell(row=17,column=4).value=Y1
     sheet.cell(row=18,column=4).value=X2
     sheet.cell(row=19,column=4).value=Y2
-    sheet.cell(row=2,column=1).value=st.session_state['inf']['work_place']
+    sheet.cell(row=2,column=1).value=st.session_state['inf']['work_place'] +st.session_state['inf']['work_place2']
     sheet.cell(row=3,column=2).value=st.session_state['inf']['work_station']
     sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
     sheet.cell(row=9,column=2).value=st.session_state.totalcost
-    sheet.cell(row=14,column=2).value=st.session_state['inf']['work_benefit']
+    sheet.cell(row=14,column=2).value="受益面積"+st.session_state['inf']['work_benefit']+"ha"
 
     if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
         sheet.cell(row=20,column=2).value=' (V)'
@@ -108,7 +108,28 @@ def generateXLS(report):
     else:
         sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （  ）是    （V）否'
 
+    work_start_date = st.session_state['inf']['work_start_date']
+    work_end_date = st.session_state['inf']['work_end_date']
+
+    start_date_str = work_start_date.strftime("%Y年%m月") if work_start_date else "未指定"
+    end_date_str = work_end_date.strftime("%Y年%m月") if work_end_date else "未指定"
+
+    sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
+
+    sheet = workbook["提報明細表"]
+
+    sheet.cell(row=6,column=1).value=1
+    sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
+    sheet.cell(row=6,column=3).value=st.session_state['costs']['open_channel']['length']
+    sheet.cell(row=6,column=5).value=st.session_state['inf']['work_benefit']
+    sheet.cell(row=6,column=6).value=st.session_state['inf']['work_place']
+    sheet.cell(row=6,column=7).value=st.session_state['inf']['work_place2']
+    if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
+        sheet.cell(row=6,column=8).value='V'
+    sheet.cell(row=6,column=9).value=st.session_state.totalcost/1000
+
     output_file = 'example.xlsx'
+
     workbook.save(output_file)
     with open(output_file, 'rb') as f:
         bytes_data = f.read()
@@ -175,20 +196,33 @@ def render_page0():
 
 def render_page1():
 
+        # 检查并确保日期类型或为空
+    work_start_date = st.session_state['inf']['work_start_date']
+    work_end_date = st.session_state['inf']['work_end_date']
+
+    if isinstance(work_start_date, (str,)):
+        work_start_date = None
+
+    if isinstance(work_end_date, (str,)):
+        work_end_date = None
+
     st.subheader("工程基本資料")
 
     col1,col2=st.columns([1,1])
 
     with col1:
 
-        st.session_state['inf']['work_place'] = st.text_input("工程地點", value=st.session_state['inf']['work_place'])
+        st.session_state['inf']['work_place'] = st.text_input("縣市別", value=st.session_state['inf']['work_place'])
+        st.session_state['inf']['work_place2'] = st.text_input("鄉鎮市別", value=st.session_state['inf']['work_place2'])
         st.session_state['inf']['work_station'] = st.text_input("OO分處OO站", value=st.session_state['inf']['work_station'])
         st.session_state['inf']['work_name'] = st.text_input("水路名稱", value=st.session_state['inf']['work_name'])
-        st.session_state['inf']['work_benefit'] = st.text_input("工程效益", value=st.session_state['inf']['work_benefit'])
+        st.session_state['inf']['work_benefit'] = st.text_input("受益面積(ha)", value=st.session_state['inf']['work_benefit'])
         st.session_state['inf']['work_place_detail'] = st.radio("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"], 
                                                             index=0 if st.session_state['inf']['work_place_detail'] != "" else 1)
-        st.session_state['inf']['work_water_check'] = st.checkbox("是否需要配合斷水期施工", 
-                                                                value=st.session_state['inf']['work_water_check'])
+        st.session_state['inf']['work_water_check'] = st.checkbox("是否需要配合斷水期施工", value=st.session_state['inf']['work_water_check'])
+        st.session_state['inf']['work_start_date'] = st.date_input("最佳施工期起始日期", value=work_start_date)
+        st.session_state['inf']['work_end_date'] = st.date_input("最佳施工期結束日期", value=work_end_date)
+
     with col2:
 
         st.info("照片的部分還在開發中...")
@@ -209,7 +243,7 @@ def render_page1():
         
         if 'uploaded_file2' in st.session_state:
             st.image(st.session_state.uploaded_file2, caption="現地遠照", use_column_width=True)
-            
+
         st.markdown("---")
         # Handling the upload of the second image
         uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
@@ -374,11 +408,14 @@ def main():
     if 'inf' not in st.session_state:
         st.session_state['inf'] = {
             'work_place': '',
+            'work_place2': '',
             'work_station': '',
             'work_name': '',
             'work_benefit': '',
             'work_place_detail': '',
-            'work_water_check':False
+            'work_water_check':False,
+            'work_start_date': '',
+            'work_end_date': ''
         }
 
     if 'current_page' not in st.session_state:
