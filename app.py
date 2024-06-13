@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from tabs import render_falsework_tab, render_channel_tab, render_bridge_tab, render_road_tab, render_wall_tab
 import openpyxl
+from openpyxl.drawing.image import Image
 import os
 import folium
 from streamlit_folium import st_folium
@@ -9,7 +10,8 @@ from pyproj import Transformer
 import datetime
 import requests
 import json
-
+from myImage import insert_image
+from openpyxl.drawing.image import Image as OpenpyxlImage
 def get_basic_price_data():
     unit_price_data = {
         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
@@ -116,6 +118,15 @@ def generateXLS(report):
     end_date_str = work_end_date.strftime("%Y年%m月") if work_end_date else "未指定"
 
     sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
+
+    img1=OpenpyxlImage(st.session_state.uploaded_file1)
+    insert_image(sheet,img1,3,5)
+    img2=OpenpyxlImage(st.session_state.uploaded_file2)
+    insert_image(sheet,img2,14,5)
+    img3=OpenpyxlImage(st.session_state.uploaded_file3)
+    insert_image(sheet,img3,14,8)
+
+    st.json(st.session_state)
 
     sheet = workbook["提報明細表"]
 
@@ -362,41 +373,6 @@ def render_page3():
                     report = generate_cost_report(st.session_state['costs'], coe)
                     st.text(report)
                     generateXLS(report)
-                # if st.button('发送数据'):
-                #     # 发送 POST 请求
-                #     GAS_URL = 'https://script.google.com/macros/s/AKfycbz6CWS_HnAATXAMwJBJhIELbAoWsgcYJFkNxpgldA96m1SkWVeEgy4l1EyXeyW60gmK/exec'  # 替换为您的GAS WebApp URL
-
-                #     json_data = {
-                #                 "current_page": "render_page0",
-                #                 "submitted": False,
-                #                 "costs": {
-                #                 "open_channel": { "name": "渠道工程", "unit_cost": 0, "length": 0, "total_cost": 0 },
-                #                 "bridge": { "name": "版橋工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 },
-                #                 "wall": { "name": "擋土牆", "unit_cost": 0, "length": 0, "total_cost": 0 },
-                #                 "road": { "name": "道路工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 },
-                #                 "falsework": { "name": "版樁工程", "unit_cost": 0, "quantity": 0, "total_cost": 0 }
-                #                 },
-                #                 "totalcost": 0,
-                #                 "inf": {
-                #                 "work_place": "",
-                #                 "work_place2": "",
-                #                 "work_station": "",
-                #                 "work_name": "",
-                #                 "work_benefit": "",
-                #                 "work_place_detail": "",
-                #                 "work_water_check": False,
-                #                 "work_start_date": "",
-                #                 "work_end_date": ""
-                #                 }
-                #             }
-
-                #     response = requests.post(GAS_URL, data=json.dumps(json_data))
-                    
-                #     # 显示结果
-                #     if response.status_code == 200:
-                #         st.success('数据已成功发送到 Google Sheets!')
-                #     else:
-                #         st.error(f'发送数据时出错: {response.status_code}')
 
 def storeMSG(username, email, txt):
 
