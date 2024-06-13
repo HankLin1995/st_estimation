@@ -3,7 +3,7 @@ import pandas as pd
 from tabs import render_falsework_tab, render_channel_tab, render_bridge_tab, render_road_tab, render_wall_tab
 import openpyxl
 from openpyxl.drawing.image import Image
-import os
+import os,io
 import folium
 from streamlit_folium import st_folium
 from pyproj import Transformer
@@ -119,11 +119,18 @@ def generateXLS(report):
 
     sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
 
-    img1=OpenpyxlImage(st.session_state.uploaded_file1)
+    img1_file = io.BytesIO(st.session_state.uploaded_file1.getvalue())
+    img1 = OpenpyxlImage(img1_file)
+    img2_file = io.BytesIO(st.session_state.uploaded_file2.getvalue())
+    img2 = OpenpyxlImage(img2_file)
+    img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
+    img3 = OpenpyxlImage(img3_file)
+
+    # img1=OpenpyxlImage(st.session_state.uploaded_file1)
     insert_image(sheet,img1,3,5)
-    img2=OpenpyxlImage(st.session_state.uploaded_file2)
+    # img2=OpenpyxlImage(st.session_state.uploaded_file2)
     insert_image(sheet,img2,14,5)
-    img3=OpenpyxlImage(st.session_state.uploaded_file3)
+    # img3=OpenpyxlImage(st.session_state.uploaded_file3)
     insert_image(sheet,img3,14,8)
 
     st.json(st.session_state)
