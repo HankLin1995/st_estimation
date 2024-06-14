@@ -119,25 +119,22 @@ def generateXLS(report):
 
     sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
 
-    img1_file = io.BytesIO(st.session_state.uploaded_file1.getvalue())
-    img1 = OpenpyxlImage(img1_file)
-    img2_file = io.BytesIO(st.session_state.uploaded_file2.getvalue())
-    img2 = OpenpyxlImage(img2_file)
-    img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
-    img3 = OpenpyxlImage(img3_file)
-    img4_file = io.BytesIO(st.session_state.uploaded_file4.getvalue())
-    img4 = OpenpyxlImage(img4_file)
-
-    # img1=OpenpyxlImage(st.session_state.uploaded_file1)
-    insert_image(sheet,img1,3,5)
-    # img2=OpenpyxlImage(st.session_state.uploaded_file2)
-    insert_image(sheet,img2,14,5)
-    # img3=OpenpyxlImage(st.session_state.uploaded_file3)
-    insert_image(sheet,img3,14,8)
-
-    sheet=workbook["位置圖"]
-
-    insert_image(sheet,img4,3,1)
+    if st.session_state.uploaded_file1 is not None:
+        img1_file = io.BytesIO(st.session_state.uploaded_file1.getvalue())
+        img1 = OpenpyxlImage(img1_file)
+        insert_image(sheet,img1,3,5)
+    if st.session_state.uploaded_file2 is not None:
+        img2_file = io.BytesIO(st.session_state.uploaded_file2.getvalue())
+        img2 = OpenpyxlImage(img2_file)
+        insert_image(sheet,img2,14,5)
+    if st.session_state.uploaded_file3 is not None:
+        img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
+        img3 = OpenpyxlImage(img3_file)
+        insert_image(sheet,img3,14,8)
+    if st.session_state.uploaded_file4 is not None:
+        img4_file = io.BytesIO(st.session_state.uploaded_file4.getvalue())
+        img4 = OpenpyxlImage(img4_file)
+        insert_image(workbook["位置圖"],img4,3,1)
 
     sheet = workbook["提報明細表"]
 
