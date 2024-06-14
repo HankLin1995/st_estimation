@@ -256,7 +256,7 @@ def render_page1():
             else:
                 st.session_state.uploaded_file1 = None
             
-            if 'uploaded_file1' in st.session_state:
+            if 'uploaded_file1' in st.session_state and st.session_state.uploaded_file1 is not None:
                 st.image(st.session_state.uploaded_file1, caption="現地近照", use_column_width=True)
     
         with tab2:
@@ -268,7 +268,7 @@ def render_page1():
             else:
                 st.session_state.uploaded_file2 = None
             
-            if 'uploaded_file2' in st.session_state:
+            if 'uploaded_file2' in st.session_state and st.session_state.uploaded_file2 is not None:
                 st.image(st.session_state.uploaded_file2, caption="現地遠照", use_column_width=True)
 
         with tab3:
@@ -280,7 +280,7 @@ def render_page1():
             else:
                 st.session_state.uploaded_file3 = None
             # Handling the upload of the second image
-            if 'uploaded_file3' in st.session_state:
+            if 'uploaded_file3' in st.session_state and st.session_state.uploaded_file3 is not None:
                 st.image(st.session_state.uploaded_file3, caption="施工簡圖", use_column_width=True)
 
         with tab4:
@@ -292,7 +292,7 @@ def render_page1():
             else:
                 st.session_state.uploaded_file4 = None
             # Handling the upload of the second image
-            if 'uploaded_file4' in st.session_state:
+            if 'uploaded_file4' in st.session_state and st.session_state.uploaded_file4 is not None:
                 st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
 
 def render_page2():
