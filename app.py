@@ -106,7 +106,7 @@ def generateXLS(report):
     else:
         sheet.cell(row=21,column=2).value=' (V)'
 
-    if st.session_state['inf']['work_water_check']==True:
+    if st.session_state['inf']['work_water_check']=="是":
         sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （V）是    （  ）否'
     else:
         sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （  ）是    （V）否'
@@ -237,11 +237,14 @@ def render_page1():
         st.session_state['inf']['work_station'] = st.text_input("OO分處OO站", value=st.session_state['inf']['work_station'])
         st.session_state['inf']['work_name'] = st.text_input("水路名稱", value=st.session_state['inf']['work_name'])
         st.session_state['inf']['work_benefit'] = st.text_input("受益面積(ha)", value=st.session_state['inf']['work_benefit'])
-        st.session_state['inf']['work_place_detail'] = st.radio("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"], 
-                                                            index=0 if st.session_state['inf']['work_place_detail'] != "" else 1)
-        st.session_state['inf']['work_water_check'] = st.checkbox("是否需要配合斷水期施工", value=st.session_state['inf']['work_water_check'])
-        st.session_state['inf']['work_start_date'] = st.date_input("最佳施工期起始日期", value=work_start_date)
-        st.session_state['inf']['work_end_date'] = st.date_input("最佳施工期結束日期", value=work_end_date)
+        st.session_state['inf']['work_place_detail'] = st.selectbox("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"])
+        # st.session_state['inf']['work_place_detail'] = st.radio("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"], 
+                                                            # index=0 if st.session_state['inf']['work_place_detail'] != "" else 1)
+        # st.session_state['inf']['work_water_check'] = st.selectbox("是否需要配合斷水期施工",options=["是","否"], value=st.session_state['inf']['work_water_check'])
+        st.session_state['inf']['work_water_check'] = st.checkbox("需要配合斷水期施工", value=st.session_state['inf']['work_water_check'])
+        st.markdown("---")
+        st.session_state['inf']['work_start_date'] = st.date_input("最佳施工起始日期", value=work_start_date)
+        st.session_state['inf']['work_end_date'] = st.date_input("最佳施工結束日期", value=work_end_date)
 
     with col2:
 
@@ -454,7 +457,7 @@ def main():
             'work_name': '',
             'work_benefit': '',
             'work_place_detail': '',
-            'work_water_check':False,
+            'work_water_check':True,
             'work_start_date': '',
             'work_end_date': ''
         }
@@ -488,7 +491,7 @@ def main():
     else:
         render_page0()
 
-    print(st.session_state)
+    # print(st.session_state)
 
 if __name__ == "__main__":
     main()
