@@ -125,6 +125,8 @@ def generateXLS(report):
     img2 = OpenpyxlImage(img2_file)
     img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
     img3 = OpenpyxlImage(img3_file)
+    img4_file = io.BytesIO(st.session_state.uploaded_file4.getvalue())
+    img4 = OpenpyxlImage(img4_file)
 
     # img1=OpenpyxlImage(st.session_state.uploaded_file1)
     insert_image(sheet,img1,3,5)
@@ -133,7 +135,9 @@ def generateXLS(report):
     # img3=OpenpyxlImage(st.session_state.uploaded_file3)
     insert_image(sheet,img3,14,8)
 
-    st.json(st.session_state)
+    sheet=workbook["位置圖"]
+
+    insert_image(sheet,img4,3,1)
 
     sheet = workbook["提報明細表"]
 
@@ -244,33 +248,47 @@ def render_page1():
 
     with col2:
 
-        st.info("照片的部分還在開發中...")
-        # Handling the upload of the first image
-        uploaded_file1 = st.file_uploader("現地近照", type=["png", "jpg", "jpeg"], key='upload1')
-        if uploaded_file1 is not None:
-            st.session_state.uploaded_file1 = uploaded_file1
-        
-        if 'uploaded_file1' in st.session_state:
-            st.image(st.session_state.uploaded_file1, caption="現地近照", use_column_width=True)
-        
-        st.markdown("---")
-        
-        # Handling the upload of the second image
-        uploaded_file2 = st.file_uploader("現地遠照", type=["png", "jpg", "jpeg"], key='upload2')
-        if uploaded_file2 is not None:
-            st.session_state.uploaded_file2 = uploaded_file2
-        
-        if 'uploaded_file2' in st.session_state:
-            st.image(st.session_state.uploaded_file2, caption="現地遠照", use_column_width=True)
+        tab1,tab2,tab3,tab4=st.tabs(["現地近照","現地遠照","設計簡圖","位置圖"])
 
-        st.markdown("---")
-        # Handling the upload of the second image
-        uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
-        if uploaded_file3 is not None:
-            st.session_state.uploaded_file3 = uploaded_file3
-        # Handling the upload of the second image
-        if 'uploaded_file3' in st.session_state:
-            st.image(st.session_state.uploaded_file3, caption="施工簡圖", use_column_width=True)
+        with tab1:
+
+            # Handling the upload of the first image
+            uploaded_file1 = st.file_uploader("現地近照", type=["png", "jpg", "jpeg"], key='upload1')
+            if uploaded_file1 is not None:
+                st.session_state.uploaded_file1 = uploaded_file1
+            
+            if 'uploaded_file1' in st.session_state:
+                st.image(st.session_state.uploaded_file1, caption="現地近照", use_column_width=True)
+    
+        with tab2:
+
+            # Handling the upload of the second image
+            uploaded_file2 = st.file_uploader("現地遠照", type=["png", "jpg", "jpeg"], key='upload2')
+            if uploaded_file2 is not None:
+                st.session_state.uploaded_file2 = uploaded_file2
+            
+            if 'uploaded_file2' in st.session_state:
+                st.image(st.session_state.uploaded_file2, caption="現地遠照", use_column_width=True)
+
+        with tab3:
+
+            # Handling the upload of the second image
+            uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
+            if uploaded_file3 is not None:
+                st.session_state.uploaded_file3 = uploaded_file3
+            # Handling the upload of the second image
+            if 'uploaded_file3' in st.session_state:
+                st.image(st.session_state.uploaded_file3, caption="施工簡圖", use_column_width=True)
+
+        with tab4:
+
+            # Handling the upload of the second image
+            uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
+            if uploaded_file4 is not None:
+                st.session_state.uploaded_file4 = uploaded_file4
+            # Handling the upload of the second image
+            if 'uploaded_file4' in st.session_state:
+                st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
 
 def render_page2():
 
@@ -394,7 +412,7 @@ def storeMSG(username, email, txt):
     try:
         response = requests.post(GAS_URL, json=data)
         response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
-        print(response.json())
+        # print(response.json())
         return response.json()
     except requests.exceptions.HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')
@@ -440,7 +458,7 @@ def main():
         st.session_state['current_page'] = 'page0'
 
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.3")
+        st.title(":globe_with_meridians: 工程估算系統 V1.4")
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
         # st.markdown("---")
