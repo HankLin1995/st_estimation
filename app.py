@@ -28,14 +28,26 @@ def get_falsework_price_data():
     }
     return pd.DataFrame(unit_price_data)
 
-def get_cost_data():
+def get_cost_data(coe_other):
+
+    my_other_cost=0
+
     cost_data = []
     for key, item in st.session_state['costs'].items():
+
+        my_other_cost=my_other_cost+int(item['total_cost'])
+        
         cost_data.append({
             '項目': item['name'],
             '總價': item['total_cost'],
             '單位': '元'
         })
+
+    cost_data.append({
+        '項目': '雜項及其他',
+        '總價': int(my_other_cost*coe_other),
+        '單位': '元' 
+    })
 
     return pd.DataFrame(cost_data)
 
@@ -66,7 +78,7 @@ def generate_cost_report(costs, indirect_coefficient=0.4):
     total_cost = total_direct_cost + indirect_cost
 
     report.append(f"\n直接工程費 = {total_direct_cost:,.0f}元")
-    report.append(f"間接工程費(含雜項) = 直接工程費 * {indirect_coefficient} = {indirect_cost:,.0f}元")
+    report.append(f"間接工程費 = 直接工程費 * {indirect_coefficient} = {indirect_cost:,.0f}元")
     report.append(f"\n總工程費 = {total_cost:,.0f}元")
 
     st.session_state.totalcost=total_cost
@@ -157,60 +169,35 @@ def generateXLS(report):
     os.remove(output_file)
 
 def render_page0():
-    st.header(":dart:操作說明")
 
-    st.markdown("""
+    # st.subheader(":dart:歡迎來到主頁面")
+
+    col1,col2,col3=st.columns([5,1,5])
+
+    with col1:
+
+        with open("./md/SP.md", "r", encoding="utf-8") as file:
+            markdown_text = file.read()
+
+        st.markdown(markdown_text)
+
+    with col3:
+
+        with open("./md/log.md", "r", encoding="utf-8") as file:
+            markdown_text = file.read()
+
+        st.markdown(markdown_text,True) 
+
+    # st.markdown("""
+    
+    # :one: 填寫基本資料
                 
-    ##### 報表生成流程:
+    # :two: 點選施作位置
                 
-    :one: 填寫基本資料
+    # :three: 填寫工程內容概要
                 
-    :two: 點選施作位置
-                
-    :three: 填寫工程內容概要
-                
-    :four: 出現金額後點選左側操作按鈕"工程概要表"即可輸出 
-    """)
+    # """)
 
-    with st.expander(":mag: 工程內容填寫教學"):
-
-        st.markdown("""
-
-        **渠道工程、版橋工程、擋土牆**
-            
-            1. 選擇工程項目
-            2. 填寫幾何條件
-            3. 生成材料計算表
-            4. 如要調整可以直接修改材料計算表內容
-        
-        **道路工程、版樁工程**
-
-            1. 選擇材料類別
-            2. 填寫幾何條件
-            3. 點選新增加入工程統計表
-            4. 如要調整可以於統計表進行刪除
-                
-        """)
-
-
-    with st.expander(":mega: 給開發者的話(意見提供、問題回饋)"):
-
-        if 'submitted' not in st.session_state:
-            st.session_state.submitted = False
-
-        username = st.text_input(":small_blue_diamond: 姓名")
-        email = st.text_input(":small_blue_diamond: 電子郵件")
-        txt = st.text_area(":small_blue_diamond: 內容")
-
-        if not st.session_state.submitted:
-            if st.button("送出",type='primary'):
-                storeMSG(username, email, txt)
-                st.balloons()
-                st.toast("感謝你的意見回復!")
-                st.session_state.submitted = True
-                st.rerun()
-        else:
-            st.write("**:red[感謝你的意見提供! 如要繼續提供請重新整理]**")
 
     st.session_state.current_page = 'render_page0'
 
@@ -362,6 +349,7 @@ def render_page2():
             #     st.success("已經選取了兩個位置")
 
 def render_page3():
+
     col1, col2, col3 = st.columns([8, 1, 4])
 
     with col3:
@@ -370,9 +358,10 @@ def render_page3():
             edited_unit_price_df = st.data_editor(get_basic_price_data(), hide_index=True)
         with st.expander("鋼版樁、鋼軌樁"):
             edited_falsework_price_df = st.data_editor(get_falsework_price_data(), hide_index=True)
-
+        
     with col1:
         st.markdown("#### :small_blue_diamond: 工程項目")
+
         tab_names = ["渠道工程", "版橋工程", "道路工程", "版樁工程", "擋土牆"]
         tabs = st.tabs(tab_names)
         with tabs[0]:
@@ -388,9 +377,10 @@ def render_page3():
 
     with col3:
         with st.expander(":globe_with_meridians: **估算成果**"):
-            cost_df = get_cost_data()
+            coe_other = st.number_input(":star: **雜項費用係數**", min_value=0.0, value=0.1, step=0.05)
+            cost_df = get_cost_data(coe_other)
             st.dataframe(cost_df, hide_index=True, use_container_width=True)
-            coe = st.number_input(":star: **間接費用係數(含雜項)**", min_value=0.0, value=0.4, step=0.05)
+            coe = st.number_input(":star: **間接費用係數**", min_value=0.0, value=0.3, step=0.05)
             sum_cost = cost_df['總價'].sum()
             other_cost = round(sum_cost * (1 + coe), -3) - sum_cost
             total_cost = sum_cost + other_cost
@@ -466,13 +456,35 @@ def main():
         st.session_state['current_page'] = 'page0'
 
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.4")
+        st.title(":globe_with_meridians: 工程估算系統 V1.6")
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
+        with st.expander(":mega: 意見回饋"):
+
+            if 'submitted' not in st.session_state:
+                st.session_state.submitted = False
+
+            username = st.text_input(":small_blue_diamond: 姓名")
+            email = st.text_input(":small_blue_diamond: 電子郵件")
+            txt = st.text_area(":small_blue_diamond: 內容")
+
+            if not st.session_state.submitted:
+                if st.button("送出",type='primary'):
+
+                    storeMSG(username, email, txt)
+                    st.balloons()
+                    st.toast("感謝你的意見回復!")
+                    st.session_state.submitted = True
+                    st.rerun()
+            else:
+                st.write("**:red[感謝你的意見提供! 如要繼續提供請重新整理]**")
         # st.markdown("---")
         # st.json(st.session_state)
         st.markdown("---")
         st.subheader("選擇頁面")
+
+        if st.button("系統操作流程"):
+            st.session_state.current_page = 'page0'  
         if st.button("工程基本資料"):
             st.session_state.current_page = 'page1'
         if st.button("工程施作位置"):
