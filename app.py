@@ -194,17 +194,6 @@ def render_page0():
 
         st.markdown(markdown_text,True) 
 
-    # st.markdown("""
-    
-    # :one: 填寫基本資料
-                
-    # :two: 點選施作位置
-                
-    # :three: 填寫工程內容概要
-                
-    # """)
-
-
     st.session_state.current_page = 'render_page0'
 
 def render_page1():
@@ -434,7 +423,6 @@ def session_initialize():
             'wall': {'name':'擋土牆','unit_cost': 0, 'length': 0, 'total_cost': 0},
             'road': {'name':'道路工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0},
             'falsework': {'name':'版樁工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
-            # 'other': {'name':'雜項及其他','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
         }
 
     if 'totalcost' not in st.session_state:
@@ -478,7 +466,7 @@ def main():
     )
 
     session_initialize()
-    
+
     with st.sidebar:
         st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
         st.write("這是用於提報計畫時的估算工具")
