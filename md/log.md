@@ -31,6 +31,14 @@
   </thead>
   <tbody>
     <tr>
+      <td rowspan="2">2024-06-16</td>
+      <td rowspan="2">1.6.1</td>
+      <td>修復雜項及其他報表未出現問題</td>
+    </tr>
+    <tr>
+      <td>修復照片session_state未初始化問題</td>
+    </tr>
+    <tr>
       <td rowspan="2">2024-06-15</td>
       <td rowspan="2">1.6</td>
       <td>新增系統操作流程、調整版面</td>

@@ -51,7 +51,7 @@ def get_cost_data(coe_other):
 
     return pd.DataFrame(cost_data)
 
-def generate_cost_report(costs, indirect_coefficient=0.4):
+def generate_cost_report(costs,other_coefficient, indirect_coefficient):
     report = []
     total_direct_cost = 0
     index = 1
@@ -73,6 +73,12 @@ def generate_cost_report(costs, indirect_coefficient=0.4):
         report.append(f"{index}. {item['name']}: {description}")
         total_direct_cost += total_cost
         index += 1
+
+    other_cost=total_direct_cost*other_coefficient
+    description = f"{other_cost:,.0f}元"
+    report.append(f"{index}. 雜項及其他: {description}")
+
+    total_direct_cost=total_direct_cost+other_cost
 
     indirect_cost = round(total_direct_cost * (1+indirect_coefficient),-3)-total_direct_cost
     total_cost = total_direct_cost + indirect_cost
@@ -393,7 +399,7 @@ def render_page3():
         if total_cost != 0:
             with st.sidebar:
                 if st.button("工程概要表", type="primary"):
-                    report = generate_cost_report(st.session_state['costs'], coe)
+                    report = generate_cost_report(st.session_state['costs'], coe_other,coe)
                     st.text(report)
                     generateXLS(report)
 
@@ -418,14 +424,8 @@ def storeMSG(username, email, txt):
     except Exception as err:
         print(f'Other error occurred: {err}')
         return {'success': False, 'error': str(err)}
-
-def main():
-    st.set_page_config(
-        page_title="工程估算系統",
-        page_icon="🌐",
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
+    
+def session_initialize():
 
     if 'costs' not in st.session_state:
         st.session_state['costs'] = {
@@ -434,6 +434,7 @@ def main():
             'wall': {'name':'擋土牆','unit_cost': 0, 'length': 0, 'total_cost': 0},
             'road': {'name':'道路工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0},
             'falsework': {'name':'版樁工程','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
+            # 'other': {'name':'雜項及其他','unit_cost': 0, 'quantity': 0, 'total_cost': 0}
         }
 
     if 'totalcost' not in st.session_state:
@@ -455,8 +456,31 @@ def main():
     if 'current_page' not in st.session_state:
         st.session_state['current_page'] = 'page0'
 
+        # 初始化 session_state 中的文件屬性
+    if 'uploaded_file1' not in st.session_state:
+        st.session_state.uploaded_file1 = None
+    if 'uploaded_file2' not in st.session_state:
+        st.session_state.uploaded_file2 = None
+    if 'uploaded_file3' not in st.session_state:
+        st.session_state.uploaded_file3 = None
+    if 'uploaded_file4' not in st.session_state:
+        st.session_state.uploaded_file4 = None
+
+def main():
+
+    SYSTEM_VERSION="V1.6.1"
+
+    st.set_page_config(
+        page_title="工程估算系統"+SYSTEM_VERSION,
+        page_icon="🌐",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+
+    session_initialize()
+    
     with st.sidebar:
-        st.title(":globe_with_meridians: 工程估算系統 V1.6")
+        st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
         with st.expander(":mega: 意見回饋"):
