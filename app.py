@@ -187,6 +187,7 @@ def render_page0():
 
         st.markdown(markdown_text)
 
+
     with col3:
 
         with open("./md/log.md", "r", encoding="utf-8") as file:
@@ -471,6 +472,8 @@ def main():
         st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
         st.write("這是用於提報計畫時的估算工具")
         st.info("作者:**林宗漢**")
+        with st.expander(":clapper: 影片教學"):
+            st.video("./video/demo.mp4")
         with st.expander(":mega: 意見回饋"):
 
             if 'submitted' not in st.session_state:
@@ -495,14 +498,20 @@ def main():
         st.markdown("---")
         st.subheader("選擇頁面")
 
-        if st.button("系統操作流程"):
-            st.session_state.current_page = 'page0'  
-        if st.button("工程基本資料"):
-            st.session_state.current_page = 'page1'
-        if st.button("工程施作位置"):
-            st.session_state.current_page = 'page2'
-        if st.button("工程內容概要"):
-            st.session_state.current_page = 'page3'
+        col1,col2=st.columns([1,1])
+
+        with col1:
+
+            if st.button("0.系統操作流程"):
+                st.session_state.current_page = 'page0'  
+            if st.button("1.工程基本資料"):
+                st.session_state.current_page = 'page1'
+
+        with col2:
+            if st.button("2.工程施作位置"):
+                st.session_state.current_page = 'page2'
+            if st.button("3.工程內容概要"):
+                st.session_state.current_page = 'page3'
         st.markdown("---")
         st.subheader("操作按鈕")
 
