@@ -498,20 +498,15 @@ def main():
         st.markdown("---")
         st.subheader("選擇頁面")
 
-        col1,col2=st.columns([1,1])
-
-        with col1:
-
-            if st.button("0.系統操作流程"):
-                st.session_state.current_page = 'page0'  
-            if st.button("1.工程基本資料"):
-                st.session_state.current_page = 'page1'
-
-        with col2:
-            if st.button("2.工程施作位置"):
-                st.session_state.current_page = 'page2'
-            if st.button("3.工程內容概要"):
-                st.session_state.current_page = 'page3'
+        if st.button("0.系統操作流程"):
+            st.session_state.current_page = 'page0'  
+        if st.button("1.工程基本資料"):
+            st.session_state.current_page = 'page1'
+        if st.button("2.工程施作位置"):
+            st.session_state.current_page = 'page2'
+        if st.button("3.工程內容概要"):
+            st.session_state.current_page = 'page3'
+            
         st.markdown("---")
         st.subheader("操作按鈕")
 
