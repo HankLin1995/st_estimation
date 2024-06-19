@@ -287,7 +287,7 @@ def render_page2():
 
     # 定義地圖的初始位置和縮放級別
     initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
-    initial_zoom = 12
+    initial_zoom = 10
 
     # 用來暫存點擊的座標
     if 'coords' not in st.session_state:
@@ -322,6 +322,9 @@ def render_page2():
 
         # 顯示暫存的坐標
         st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
+
+    st.info("如果地圖打開有困難的話，可以忽略本頁面，修改檔案內容。")
+
 
     # 顯示儲存按鈕
     if st.sidebar.button('儲存目前位置',type='primary') and len(st.session_state['coords']) < 2 :
@@ -457,7 +460,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.6.1"
+    SYSTEM_VERSION="V1.6.2"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
