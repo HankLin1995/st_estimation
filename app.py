@@ -12,6 +12,11 @@ import requests
 import json
 from myImage import insert_image
 from openpyxl.drawing.image import Image as OpenpyxlImage
+from json_test import st_to_json
+from datetime import datetime
+
+# 自定义 JSON 序列化器，用于处理日期字段
+
 def get_basic_price_data():
     unit_price_data = {
         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
@@ -88,22 +93,25 @@ def generate_cost_report(costs,other_coefficient, indirect_coefficient):
     report.append(f"\n總工程費 = {total_cost:,.0f}元")
 
     st.session_state.totalcost=total_cost
+    st.session_state['inf']['job_cost'] = total_cost
 
     return "\n".join(report)
 
 def generateXLS(report):
 
-    if 'coords' in st.session_state and len(st.session_state['coords']) == 2:
+    if 'coords' in st.session_state and len(st.session_state['coords']) >= 2:
         # Extract the coordinates
         X1 = st.session_state['coords'][0]['twd97_x']
         Y1 = st.session_state['coords'][0]['twd97_y']
         X2 = st.session_state['coords'][1]['twd97_x']
         Y2 = st.session_state['coords'][1]['twd97_y']
+        # X3 = st.session_state['coords'][2]['twd97_x']
+        # Y3 = st.session_state['coords'][2]['twd97_y']       
     else:
         # 處理 `st.session_state['coords']` 尚未初始化或長度不是2 的情況
         # 可以在這裡設定適當的預設值或者發出警告訊息
         X1, Y1, X2, Y2 = 0, 0, 0, 0  # 設定預設值為0，你也可以根據需求設定其他值
-        st.warning("請手動輸入兩個座標至概要表")
+        # st.warning("請手動輸入兩個座標至概要表")
 
     workbook = openpyxl.load_workbook('./template/PLAN.xlsx')
     sheet = workbook["概要表"]
@@ -171,8 +179,22 @@ def generateXLS(report):
     workbook.save(output_file)
     with open(output_file, 'rb') as f:
         bytes_data = f.read()
-    st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
+    btn=st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
     os.remove(output_file)
+
+def savedata():
+    json_result = st_to_json(st.session_state)
+    # 設置 Google Apps Script Web 應用程式的 URL
+    url =st.secrets.GAS_URL 
+    with st.sidebar:
+        with st.spinner("...資料儲存中..."):
+            # 發送 POST 請求並傳遞 JSON 資料
+            response = requests.post(url, data=json_result)
+            # 檢查請求是否成功
+            if response.status_code == 200:
+                st.write("資料儲存成功!")
+            else:
+                st.write("Error:", response.status_code)
 
 def render_page0():
 
@@ -209,17 +231,27 @@ def render_page1():
     if isinstance(work_end_date, (str,)):
         work_end_date = None
 
-    st.subheader("工程基本資料")
+    st.subheader("工程基本資料填報")
 
     col1,col2=st.columns([1,1])
 
     with col1:
 
-        st.session_state['inf']['work_place'] = st.text_input("縣市別", value=st.session_state['inf']['work_place'])
-        st.session_state['inf']['work_place2'] = st.text_input("鄉鎮市別", value=st.session_state['inf']['work_place2'])
-        st.session_state['inf']['work_station'] = st.text_input("OO分處OO站", value=st.session_state['inf']['work_station'])
+        col1_left,col1_right=st.columns([1,1])
+
+        with col1_left:
+            st.session_state['inf']['work_place'] = st.text_input("縣市別", value=st.session_state['inf']['work_place'])
+            # st.session_state['inf']['work_place2'] = st.text_input("鄉鎮市別", value=st.session_state['inf']['work_place2'])
+            st.session_state['inf']['work_manage'] = st.selectbox("分處", options=["斗六分處","西螺分處","虎尾分處","北港分處","林內分處"])
+        with col1_right:
+            st.session_state['inf']['work_place2'] = st.text_input("鄉鎮市別", value=st.session_state['inf']['work_place2'])
+            # st.session_state['inf']['work_manage'] = st.selectbox("分處", options=["斗六分處","西螺分處","虎尾分處","北港分處","林內分處"])
+            st.session_state['inf']['work_station'] = st.text_input("工作站", value=st.session_state['inf']['work_station'])
         st.session_state['inf']['work_name'] = st.text_input("水路名稱", value=st.session_state['inf']['work_name'])
         st.session_state['inf']['work_benefit'] = st.text_input("受益面積(ha)", value=st.session_state['inf']['work_benefit'])
+        
+        st.markdown("---")
+        st.session_state['inf']['work_place_water'] = st.selectbox("水路用地", options=["處有地","私有地","公有地"])
         st.session_state['inf']['work_place_detail'] = st.selectbox("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"])
         # st.session_state['inf']['work_place_detail'] = st.radio("工程用地", options=["已取得並確認妥處","尚未取得或尚未妥處"], 
                                                             # index=0 if st.session_state['inf']['work_place_detail'] != "" else 1)
@@ -283,15 +315,18 @@ def render_page1():
 
 def render_page2():
 
-    st.subheader("點選渠道施作位置")
+    if len(st.session_state['coords']) ==0:
+        st.subheader("1.點選渠道施作起點")
+    elif len(st.session_state['coords']) ==1:
+        st.subheader("2.點選渠道施作終點")
+    elif len(st.session_state['coords']) == 2:
+        st.subheader("3.點選最佳會勘地點")
+    else :
+        st.warning("**如果要重新點選請先清空所有座標**")
 
     # 定義地圖的初始位置和縮放級別
     initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
     initial_zoom = 10
-
-    # 用來暫存點擊的座標
-    if 'coords' not in st.session_state:
-        st.session_state['coords'] = []
 
     # 添加點擊事件處理
     def add_marker(folium_map, lat, lon, label):
@@ -327,25 +362,25 @@ def render_page2():
 
 
     # 顯示儲存按鈕
-    if st.sidebar.button('儲存目前位置',type='primary') and len(st.session_state['coords']) < 2 :
+    if st.sidebar.button('儲存座標',type='primary') and len(st.session_state['coords']) < 3 :
         st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
         st.rerun()
 
     # 顯示儲存的坐標
-    if len(st.session_state['coords']) == 2:
-        st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
+    if len(st.session_state['coords']) == 3:
+        # st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
 
         if st.sidebar.button('清空所有坐標'):
             st.session_state['coords'] = []  # 清空坐標
             st.rerun()  # 重新運行應用以更新頁面
-    #     with st.sidebar:
-            # for i, coord in enumerate(st.session_state['coords']):
-                # st.markdown("---")
-                # st.markdown(f"### 點 {i + 1} - TWD97 坐標")
-                # st.write(f"X: {coord['twd97_x']}")
-                # st.write(f"Y: {coord['twd97_y']}")
-            # if len(st.session_state['coords']) == 2:
-            #     st.success("已經選取了兩個位置")
+
+    with st.sidebar:
+
+        for i, coord in enumerate(st.session_state['coords']):
+            st.markdown("---")
+            st.markdown(f"### 點 {i + 1}")
+            st.write(f"X: {coord['twd97_x']}")
+            st.write(f"Y: {coord['twd97_y']}")
 
 def render_page3():
 
@@ -395,10 +430,12 @@ def render_page3():
                     report = generate_cost_report(st.session_state['costs'], coe_other,coe)
                     st.text(report)
                     generateXLS(report)
+                    savedata()
+                    # st.json(st.session_state)
 
 def storeMSG(username, email, txt):
 
-    GAS_URL = st.secrets.GAS_URL
+    GAS_URL = st.secrets.GAS_URL_NOTIFY
 
     data = {
         'username': username,
@@ -434,19 +471,29 @@ def session_initialize():
 
     if 'inf' not in st.session_state:
         st.session_state['inf'] = {
-            'work_place': '',
-            'work_place2': '',
-            'work_station': '',
-            'work_name': '',
-            'work_benefit': '',
-            'work_place_detail': '',
+            'timestamp': datetime.now(),
+            'work_place': '雲林縣',
+            'work_place2': '斗六市',
+            'work_manage':'斗六分處',
+            'work_station': '梅林站',
+            'work_name': 'OO小給',
+            'work_benefit': '20',
+            'work_place_water':'處有地',
+            'work_place_detail': '已取得並確認妥處',
             'work_water_check':True,
             'work_start_date': '',
-            'work_end_date': ''
+            'work_end_date': '',
+            'job_length':0,
+            'job_cost':0
+
         }
 
     if 'current_page' not in st.session_state:
         st.session_state['current_page'] = 'page0'
+
+        # 用來暫存點擊的座標
+    if 'coords' not in st.session_state:
+        st.session_state['coords'] = []
 
         # 初始化 session_state 中的文件屬性
     if 'uploaded_file1' not in st.session_state:
@@ -460,7 +507,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.6.2"
+    SYSTEM_VERSION="V1.7.0"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,

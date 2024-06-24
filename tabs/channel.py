@@ -166,3 +166,5 @@ def render_channel_tab(edited_unit_price_df):
     st.session_state['costs']['open_channel']['unit_cost'] = total_cost
     st.session_state['costs']['open_channel']['length'] = length
     st.session_state['costs']['open_channel']['total_cost'] = total_cost_len
+    
+    st.session_state['inf']['job_length'] = length
