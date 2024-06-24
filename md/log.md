@@ -31,6 +31,11 @@
   </thead>
   <tbody>
     <tr>
+      <td >2024-06-24</td>
+      <td >1.7.1</td>
+      <td>修正輸出報表的時間簽章問題</td>
+    </tr>
+    <tr>
       <td rowspan="3">2024-06-24</td>
       <td rowspan="3">1.7.0</td>
       <td>調整基本資料填報內容</td>
