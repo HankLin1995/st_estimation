@@ -99,6 +99,8 @@ def generate_cost_report(costs,other_coefficient, indirect_coefficient):
 
 def generateXLS(report):
 
+    st.session_state['inf']['timestamp'] = datetime.now()
+
     if 'coords' in st.session_state and len(st.session_state['coords']) >= 2:
         # Extract the coordinates
         X1 = st.session_state['coords'][0]['twd97_x']
