@@ -420,7 +420,7 @@ def render_page3():
             render_wall_tab(edited_unit_price_df)
 
     with col3:
-        with st.expander(":globe_with_meridians: **估算成果**"):
+        with st.expander(":globe_with_meridians: **估算成果**",True):
             coe_other = st.number_input(":star: **雜項費用係數**", min_value=0.0, value=0.1, step=0.05)
             cost_df = get_cost_data(coe_other)
             st.dataframe(cost_df, hide_index=True, use_container_width=True)
