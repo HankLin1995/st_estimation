@@ -13,7 +13,7 @@ import json
 from myImage import insert_image
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from json_test import st_to_json
-from datetime import datetime
+from datetime import datetime,date
 
 # 自定义 JSON 序列化器，用于处理日期字段
 
@@ -97,92 +97,142 @@ def generate_cost_report(costs,other_coefficient, indirect_coefficient):
 
     return "\n".join(report)
 
+def check_for_blank_values(data):
+    blank_fields = []
+    for key, value in data.items():
+
+        if type(value) == str and value=="":
+            blank_fields.append(getTitle(key))
+        elif type(value) == bool or type(value) == int:
+            continue  # 不检查布尔值或整数
+        elif type(value) == datetime and not value:
+            blank_fields.append(getTitle(key))
+        elif type(value) == date and not value:
+            blank_fields.append(getTitle(key))
+        elif type(value) == float and value == 0:
+            blank_fields.append(getTitle(key))
+        else:
+            continue#st.warning(f"未处理的数据类型: {type(value)} for key: {key}")
+
+    return blank_fields
+
+def getTitle(engname):
+
+    myDict={
+        'work_place':'縣市',
+        'work_place2':'鄉鎮市',
+        'work_name':'工程名稱',
+        'work_benefit':'受益面積',
+        'work_start_date':'最佳施工起始日期',
+        'work_end_date':'最佳施工結束日期',
+        'work_manage':'分處',
+        'work_station':'工作站',
+        'job_cost':'概估經費',
+        'job_length':'水路長度'
+    }
+
+    return myDict[engname]
+
 def generateXLS(report):
 
-    st.session_state['inf']['timestamp'] = datetime.now()
+    # Check input empty
+    blank_fields = check_for_blank_values(st.session_state['inf'])
 
-    if 'coords' in st.session_state and len(st.session_state['coords']) >= 2:
-        # Extract the coordinates
-        X1 = st.session_state['coords'][0]['twd97_x']
-        Y1 = st.session_state['coords'][0]['twd97_y']
-        X2 = st.session_state['coords'][1]['twd97_x']
-        Y2 = st.session_state['coords'][1]['twd97_y']
-        # X3 = st.session_state['coords'][2]['twd97_x']
-        # Y3 = st.session_state['coords'][2]['twd97_y']       
+# 显示空白值
+    if blank_fields:
+        # st.warning(f"請將空白內容填上:")
+        for r in range(len(blank_fields)):
+            st.warning(f"\n\n{blank_fields[r]} :空白!")
+   
+
+        # st.warning(f"請將空白內容填上:\n\n{', '.join(blank_fields)}")
     else:
-        # 處理 `st.session_state['coords']` 尚未初始化或長度不是2 的情況
-        # 可以在這裡設定適當的預設值或者發出警告訊息
-        X1, Y1, X2, Y2 = 0, 0, 0, 0  # 設定預設值為0，你也可以根據需求設定其他值
-        # st.warning("請手動輸入兩個座標至概要表")
 
-    workbook = openpyxl.load_workbook('./template/PLAN.xlsx')
-    sheet = workbook["概要表"]
+        st.session_state['inf']['timestamp'] = datetime.now()
 
-    sheet.cell(row=3, column=8).value = report
-    sheet.cell(row=16,column=4).value=X1
-    sheet.cell(row=17,column=4).value=Y1
-    sheet.cell(row=18,column=4).value=X2
-    sheet.cell(row=19,column=4).value=Y2
-    sheet.cell(row=2,column=1).value=st.session_state['inf']['work_place'] +st.session_state['inf']['work_place2']
-    sheet.cell(row=3,column=2).value=st.session_state['inf']['work_station']
-    sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
-    sheet.cell(row=9,column=2).value=st.session_state.totalcost
-    sheet.cell(row=14,column=2).value="受益面積"+st.session_state['inf']['work_benefit']+"ha"
+        if 'coords' in st.session_state and len(st.session_state['coords']) >= 2:
+            # Extract the coordinates
+            X1 = st.session_state['coords'][0]['twd97_x']
+            Y1 = st.session_state['coords'][0]['twd97_y']
+            X2 = st.session_state['coords'][1]['twd97_x']
+            Y2 = st.session_state['coords'][1]['twd97_y']
+            # X3 = st.session_state['coords'][2]['twd97_x']
+            # Y3 = st.session_state['coords'][2]['twd97_y']       
+        else:
+            # 處理 `st.session_state['coords']` 尚未初始化或長度不是2 的情況
+            # 可以在這裡設定適當的預設值或者發出警告訊息
+            X1, Y1, X2, Y2 = 0, 0, 0, 0  # 設定預設值為0，你也可以根據需求設定其他值
+            # st.warning("請手動輸入兩個座標至概要表")
 
-    if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
-        sheet.cell(row=20,column=2).value=' (V)'
-    else:
-        sheet.cell(row=21,column=2).value=' (V)'
+        workbook = openpyxl.load_workbook('./template/PLAN.xlsx')
+        sheet = workbook["概要表"]
 
-    if st.session_state['inf']['work_water_check']=="是":
-        sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （V）是    （  ）否'
-    else:
-        sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （  ）是    （V）否'
+        sheet.cell(row=3, column=8).value = report
+        sheet.cell(row=16,column=4).value=X1
+        sheet.cell(row=17,column=4).value=Y1
+        sheet.cell(row=18,column=4).value=X2
+        sheet.cell(row=19,column=4).value=Y2
+        sheet.cell(row=2,column=1).value=st.session_state['inf']['work_place'] +st.session_state['inf']['work_place2']
+        sheet.cell(row=3,column=2).value=st.session_state['inf']['work_station']
+        sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
+        sheet.cell(row=9,column=2).value=st.session_state.totalcost
+        sheet.cell(row=14,column=2).value="受益面積"+st.session_state['inf']['work_benefit']+"ha"
 
-    work_start_date = st.session_state['inf']['work_start_date']
-    work_end_date = st.session_state['inf']['work_end_date']
+        if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
+            sheet.cell(row=20,column=2).value=' (V)'
+        else:
+            sheet.cell(row=21,column=2).value=' (V)'
 
-    start_date_str = work_start_date.strftime("%Y年%m月") if work_start_date else "未指定"
-    end_date_str = work_end_date.strftime("%Y年%m月") if work_end_date else "未指定"
+        if st.session_state['inf']['work_water_check']=="是":
+            sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （V）是    （  ）否'
+        else:
+            sheet.cell(row=22,column=1).value='是否需配合斷水期施工：     （  ）是    （V）否'
 
-    sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
+        work_start_date = st.session_state['inf']['work_start_date']
+        work_end_date = st.session_state['inf']['work_end_date']
 
-    if st.session_state.uploaded_file1 is not None:
-        img1_file = io.BytesIO(st.session_state.uploaded_file1.getvalue())
-        img1 = OpenpyxlImage(img1_file)
-        insert_image(sheet,img1,3,5)
-    if st.session_state.uploaded_file2 is not None:
-        img2_file = io.BytesIO(st.session_state.uploaded_file2.getvalue())
-        img2 = OpenpyxlImage(img2_file)
-        insert_image(sheet,img2,14,5)
-    if st.session_state.uploaded_file3 is not None:
-        img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
-        img3 = OpenpyxlImage(img3_file)
-        insert_image(sheet,img3,14,8)
-    if st.session_state.uploaded_file4 is not None:
-        img4_file = io.BytesIO(st.session_state.uploaded_file4.getvalue())
-        img4 = OpenpyxlImage(img4_file)
-        insert_image(workbook["位置圖"],img4,3,1)
+        start_date_str = work_start_date.strftime("%Y年%m月") if work_start_date else "未指定"
+        end_date_str = work_end_date.strftime("%Y年%m月") if work_end_date else "未指定"
 
-    sheet = workbook["提報明細表"]
+        sheet.cell(row=22,column=7).value= f"最佳施工期：{start_date_str} ~ {end_date_str}"
 
-    sheet.cell(row=6,column=1).value=1
-    sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
-    sheet.cell(row=6,column=3).value=st.session_state['costs']['open_channel']['length']
-    sheet.cell(row=6,column=5).value=st.session_state['inf']['work_benefit']
-    sheet.cell(row=6,column=6).value=st.session_state['inf']['work_place']
-    sheet.cell(row=6,column=7).value=st.session_state['inf']['work_place2']
-    if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
-        sheet.cell(row=6,column=8).value='V'
-    sheet.cell(row=6,column=9).value=st.session_state.totalcost/1000
+        if st.session_state.uploaded_file1 is not None:
+            img1_file = io.BytesIO(st.session_state.uploaded_file1.getvalue())
+            img1 = OpenpyxlImage(img1_file)
+            insert_image(sheet,img1,3,5)
+        if st.session_state.uploaded_file2 is not None:
+            img2_file = io.BytesIO(st.session_state.uploaded_file2.getvalue())
+            img2 = OpenpyxlImage(img2_file)
+            insert_image(sheet,img2,14,5)
+        if st.session_state.uploaded_file3 is not None:
+            img3_file = io.BytesIO(st.session_state.uploaded_file3.getvalue())
+            img3 = OpenpyxlImage(img3_file)
+            insert_image(sheet,img3,14,8)
+        if st.session_state.uploaded_file4 is not None:
+            img4_file = io.BytesIO(st.session_state.uploaded_file4.getvalue())
+            img4 = OpenpyxlImage(img4_file)
+            insert_image(workbook["位置圖"],img4,3,1)
 
-    output_file = 'example.xlsx'
+        sheet = workbook["提報明細表"]
 
-    workbook.save(output_file)
-    with open(output_file, 'rb') as f:
-        bytes_data = f.read()
-    btn=st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
-    os.remove(output_file)
+        sheet.cell(row=6,column=1).value=1
+        sheet.cell(row=6,column=2).value=st.session_state['inf']['work_name']
+        sheet.cell(row=6,column=3).value=st.session_state['costs']['open_channel']['length']
+        sheet.cell(row=6,column=5).value=st.session_state['inf']['work_benefit']
+        sheet.cell(row=6,column=6).value=st.session_state['inf']['work_place']
+        sheet.cell(row=6,column=7).value=st.session_state['inf']['work_place2']
+        if st.session_state['inf']['work_place_detail']=="已取得並確認妥處":
+            sheet.cell(row=6,column=8).value='V'
+        sheet.cell(row=6,column=9).value=st.session_state.totalcost/1000
+
+        output_file = 'example.xlsx'
+
+        workbook.save(output_file)
+        with open(output_file, 'rb') as f:
+            bytes_data = f.read()
+        btn=st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
+        os.remove(output_file)
+        savedata()
 
 def savedata():
     json_result = st_to_json(st.session_state)
@@ -440,7 +490,7 @@ def render_page3():
                     report = generate_cost_report(st.session_state['costs'], coe_other,coe)
                     st.text(report)
                     generateXLS(report)
-                    savedata()
+                    
                     # st.json(st.session_state)
 
 def storeMSG(username, email, txt):
@@ -517,7 +567,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.7.2"
+    SYSTEM_VERSION="V1.7.3"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
