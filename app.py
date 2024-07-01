@@ -98,9 +98,10 @@ def generate_cost_report(costs,other_coefficient, indirect_coefficient):
     return "\n".join(report)
 
 def check_for_blank_values(data):
+
     blank_fields = []
     for key, value in data.items():
-
+        # print(type(value), value)
         if type(value) == str and value=="":
             blank_fields.append(getTitle(key))
         elif type(value) == bool or type(value) == int:
@@ -110,6 +111,8 @@ def check_for_blank_values(data):
         elif type(value) == date and not value:
             blank_fields.append(getTitle(key))
         elif type(value) == float and value == 0:
+            blank_fields.append(getTitle(key))
+        elif value is None:
             blank_fields.append(getTitle(key))
         else:
             continue#st.warning(f"未处理的数据类型: {type(value)} for key: {key}")
