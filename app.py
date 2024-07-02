@@ -141,13 +141,25 @@ def generateXLS(report):
     # Check input empty
     blank_fields = check_for_blank_values(st.session_state['inf'])
 
+    if len(st.session_state['coords'])!=3:
+        st.warning("請確認座標是否有三個點!")
+        exit()
+
+    if st.session_state['inf']['work_start_date'] == date(2024,1,1):
+        st.warning("請確認最佳施工起始日期!")
+        exit()
+
+    if st.session_state['inf']['work_end_date'] == date(2024,1,1):
+        st.warning("請確認最佳施工結束日期!")
+        exit()      
+
 # 显示空白值
     if blank_fields:
         # st.warning(f"請將空白內容填上:")
         for r in range(len(blank_fields)):
             st.warning(f"\n\n{blank_fields[r]} :空白!")
+        exit()
    
-
         # st.warning(f"請將空白內容填上:\n\n{', '.join(blank_fields)}")
     else:
 
@@ -562,8 +574,8 @@ def session_initialize():
             'work_place_water':'處有地',
             'work_place_detail': '已取得並確認妥處',
             'work_water_check':True,
-            'work_start_date': datetime(2024, 1, 1),
-            'work_end_date': datetime(2024, 1, 1),
+            'work_start_date': date(2024, 1, 1),
+            'work_end_date': date(2024, 1, 1),
             'job_length':0,
             'job_cost':0
 

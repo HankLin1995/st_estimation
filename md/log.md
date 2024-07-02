@@ -31,8 +31,8 @@
   </thead>
   <tbody>
     <tr>
-      <td rowspan="3">2024-07-02</td>
-      <td rowspan="3">1.7.4</td>
+      <td rowspan="4">2024-07-02</td>
+      <td rowspan="4">1.7.4</td>
       <td>最佳施工期初始化日期設定</td>
     </tr>
     <tr>
@@ -40,6 +40,9 @@
     </tr>
     <tr>
       <td>座標資訊顯示位置調整</td>
+    </tr>
+    <tr>
+      <td>加入輸出前內容檢查機制</td>
     </tr>
     <tr>
       <td >2024-06-28</td>
