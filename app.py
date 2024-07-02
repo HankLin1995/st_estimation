@@ -318,7 +318,8 @@ def render_page1():
 
     with col2:
 
-        tab1, tab2, tab3, tab4 = st.tabs(["現地近照", "現地遠照", "設計簡圖", "位置圖"])
+        # tab1, tab2, tab3, tab4 = st.tabs(["現地近照", "現地遠照", "設計簡圖", "位置圖"])
+        tab1, tab2, tab3 = st.tabs(["現地近照", "現地遠照", "設計簡圖"])
 
         with tab1:
             if  st.session_state.uploaded_file1 is not None:
@@ -362,66 +363,71 @@ def render_page1():
                     st.session_state.uploaded_file3 = uploaded_file3
                     st.image(st.session_state.uploaded_file3, caption="設計簡圖", use_column_width=True)
 
-        with tab4:
-            if  st.session_state.uploaded_file4 is not None:
-                uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
-                if uploaded_file4 is not None:
-                    st.session_state.uploaded_file4 = uploaded_file4
-                    st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
-                else:
-                    st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
-            else:
-                uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
-                if uploaded_file4 is not None:
-                    st.session_state.uploaded_file4 = uploaded_file4
-                    st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
+        # with tab4:
+        #     if  st.session_state.uploaded_file4 is not None:
+        #         uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
+        #         if uploaded_file4 is not None:
+        #             st.session_state.uploaded_file4 = uploaded_file4
+        #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
+        #         else:
+        #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
+        #     else:
+        #         uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
+        #         if uploaded_file4 is not None:
+        #             st.session_state.uploaded_file4 = uploaded_file4
+        #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_column_width=True)
 
 def render_page2():
 
-    if len(st.session_state['coords']) ==0:
-        st.subheader("1.點選渠道施作起點")
-    elif len(st.session_state['coords']) ==1:
-        st.subheader("2.點選渠道施作終點")
-    elif len(st.session_state['coords']) == 2:
-        st.subheader("3.點選最佳會勘地點")
-    else :
-        st.warning("**如果要重新點選請先清空所有座標**")
+    col1,col2=st.columns([6,2])
 
-    # 定義地圖的初始位置和縮放級別
-    initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
-    initial_zoom = 10
+    with col1:
 
-    # 添加點擊事件處理
-    def add_marker(folium_map, lat, lon, label):
-        folium.Marker(
-            location=[lat, lon],
-            popup=f"{label}<br>經度: {lon}<br>緯度: {lat}",
-            icon=folium.Icon(icon="info-sign"),
-        ).add_to(folium_map)
+        if len(st.session_state['coords']) ==0:
+            st.subheader("1.點選渠道施作起點")
+        elif len(st.session_state['coords']) ==1:
+            st.subheader("2.點選渠道施作終點")
+        elif len(st.session_state['coords']) == 2:
+            st.subheader("3.點選最佳會勘地點")
+        else :
+            st.subheader("**如果要重新點選請先清空所有座標**")
+            
 
-    # 創建一個 Folium 地圖
-    map = folium.Map(location=initial_location, zoom_start=initial_zoom)
+        # 定義地圖的初始位置和縮放級別
+        initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
+        initial_zoom = 10
 
-    # 顯示儲存的標記
-    for i, coord in enumerate(st.session_state['coords']):
-        add_marker(map, coord['lat'], coord['lon'], label=f"點 {i + 1}")
+        # 添加點擊事件處理
+        def add_marker(folium_map, lat, lon, label):
+            folium.Marker(
+                location=[lat, lon],
+                popup=f"{label}<br>經度: {lon}<br>緯度: {lat}",
+                icon=folium.Icon(icon="info-sign"),
+            ).add_to(folium_map)
 
-    # 顯示 Folium 地圖並捕捉點擊事件
-    map_data = st_folium(map, width=1000, height=500)
+        # 創建一個 Folium 地圖
+        map = folium.Map(location=initial_location, zoom_start=initial_zoom)
 
-    # 如果有點擊事件，獲取點擊的位置
-    if map_data and map_data['last_clicked']:
-        lat = map_data['last_clicked']['lat']
-        lon = map_data['last_clicked']['lng']
-        
-        # 轉換坐標系統
-        transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
-        twd97_x, twd97_y = transformer.transform(lat, lon)
+        # 顯示儲存的標記
+        for i, coord in enumerate(st.session_state['coords']):
+            add_marker(map, coord['lat'], coord['lon'], label=f"點 {i + 1}")
 
-        # 顯示暫存的坐標
-        st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
+        # 顯示 Folium 地圖並捕捉點擊事件
+        map_data = st_folium(map, width=1000, height=500)
 
-    st.info("如果地圖打開有困難的話，需要將網頁重新開啟，他需要先下載東西下來才能看的到。")
+        # 如果有點擊事件，獲取點擊的位置
+        if map_data and map_data['last_clicked']:
+            lat = map_data['last_clicked']['lat']
+            lon = map_data['last_clicked']['lng']
+            
+            # 轉換坐標系統
+            transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
+            twd97_x, twd97_y = transformer.transform(lat, lon)
+
+            # 顯示暫存的坐標
+            st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
+
+        st.info("如果地圖打開有困難的話，需要將網頁重新開啟，他需要先下載東西下來才能看的到。")
 
 
     # 顯示儲存按鈕
@@ -433,17 +439,29 @@ def render_page2():
     if len(st.session_state['coords']) == 3:
         # st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
 
-        if st.sidebar.button('清空所有坐標'):
+        if st.sidebar.button('清空所有坐標',type='primary'):
             st.session_state['coords'] = []  # 清空坐標
             st.rerun()  # 重新運行應用以更新頁面
 
-    with st.sidebar:
+    # with st.sidebar:
+    with col2:
+
+        st.markdown("### :round_pushpin: 座標資訊")
 
         for i, coord in enumerate(st.session_state['coords']):
-            st.markdown("---")
-            st.markdown(f"### 點 {i + 1}")
+            # st.markdown("---")
+
+            if i==0:
+                st.markdown(" #### 起點")
+            elif i==1:
+                st.markdown(" #### 終點")
+            elif i==2:
+                st.markdown(" #### 會勘點")
+
+            # st.markdown(f"#### 點 {i + 1}")
             st.write(f"X: {coord['twd97_x']}")
             st.write(f"Y: {coord['twd97_y']}")
+            st.markdown("---")
 
 def render_page3():
 
@@ -544,8 +562,8 @@ def session_initialize():
             'work_place_water':'處有地',
             'work_place_detail': '已取得並確認妥處',
             'work_water_check':True,
-            'work_start_date': '',
-            'work_end_date': '',
+            'work_start_date': datetime(2024, 1, 1),
+            'work_end_date': datetime(2024, 1, 1),
             'job_length':0,
             'job_cost':0
 
@@ -570,7 +588,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.7.3"
+    SYSTEM_VERSION="V1.7.4"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
