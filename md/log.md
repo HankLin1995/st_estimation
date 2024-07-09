@@ -31,6 +31,11 @@
   </thead>
   <tbody>
     <tr>
+      <td >2024-07-09</td>
+      <td >1.7.5</td>
+      <td>加入衛星雲圖及渠道圖層</td>
+    </tr>
+    <tr>
       <td rowspan="4">2024-07-02</td>
       <td rowspan="4">1.7.4</td>
       <td>最佳施工期初始化日期設定</td>

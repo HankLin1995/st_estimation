@@ -394,7 +394,6 @@ def render_page2():
     col1,col2=st.columns([6,2])
 
     with col1:
-
         if len(st.session_state['coords']) ==0:
             st.subheader("1.點選渠道施作起點")
         elif len(st.session_state['coords']) ==1:
@@ -403,8 +402,11 @@ def render_page2():
             st.subheader("3.點選最佳會勘地點")
         else :
             st.subheader("**如果要重新點選請先清空所有座標**")
-            
-
+        col12,col22=st.columns([1,1])
+        with col12:
+            check_satellite = st.checkbox(":earth_africa: 打開衛星雲圖")
+        with col22:
+            check_channel= st.checkbox(":bar_chart: 打開渠道圖層")
         # 定義地圖的初始位置和縮放級別
         initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
         initial_zoom = 10
@@ -419,6 +421,32 @@ def render_page2():
 
         # 創建一個 Folium 地圖
         map = folium.Map(location=initial_location, zoom_start=initial_zoom)
+
+        if check_satellite:
+
+            folium.raster_layers.WmsTileLayer(
+                url='http://maps.nlsc.gov.tw/S_Maps/wms',  # 示例 WMS 服务 URL，请根据需要替换
+                layers='PHOTO_MIX',
+                name='衛星影像',
+                format='image/png',
+                # transparent=True,
+                # opacity=0.5,
+                control=True
+            ).add_to(map)
+
+        if check_channel:
+
+            folium.raster_layers.WmsTileLayer(
+                url='https://www.iacloud.ia.gov.tw/servergate/sgsgate.ashx/WMS/canal_public',  # 示例 WMS 服务 URL，请根据需要替换
+                layers='canal_public',
+                name='渠道',
+                format='image/png',
+                transparent=True,
+                opacity=0.6,
+                control=True
+            ).add_to(map)
+            folium.LayerControl().add_to(map)
+
 
         # 顯示儲存的標記
         for i, coord in enumerate(st.session_state['coords']):
@@ -600,7 +628,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.7.4"
+    SYSTEM_VERSION="V1.7.5"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
