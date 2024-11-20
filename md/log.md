@@ -1,4 +1,3 @@
-### 	:speech_balloon:版本更新日誌
 
 <style>
   table {

@@ -14,6 +14,7 @@ from myImage import insert_image
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from json_test import st_to_json
 from datetime import datetime,date
+import time 
 
 # 自定义 JSON 序列化器，用于处理日期字段
 
@@ -554,6 +555,31 @@ from datetime import datetime,date
                     
 #                     # st.json(st.session_state)
 
+
+@st.dialog("回饋表單")
+def Feedback():
+
+    # with st.expander(":mega: 意見回饋"):
+
+        if 'submitted' not in st.session_state:
+            st.session_state.submitted = False
+
+        with st.form("feedback",True):
+
+            username = st.text_input(":small_blue_diamond: 姓名")
+            email = st.text_input(":small_blue_diamond: 電子郵件")
+            txt = st.text_area(":small_blue_diamond: 內容")
+
+            if st.form_submit_button("送出"):
+
+                print(storeMSG(username, email, txt))
+                st.balloons()
+                st.toast("感謝你的意見回復!")
+
+                time.sleep(3)
+                st.rerun()
+
+
 def storeMSG(username, email, txt):
 
     GAS_URL = st.secrets.GAS_URL_NOTIFY
@@ -605,7 +631,8 @@ def session_initialize():
             'work_start_date': date(2024, 1, 1),
             'work_end_date': date(2024, 1, 1),
             'job_length':0,
-            'job_cost':0
+            'job_cost':0,
+            'loss':0
 
         }
 
@@ -625,8 +652,20 @@ def session_initialize():
         st.session_state.uploaded_file3 = None
     if 'uploaded_file4' not in st.session_state:
         st.session_state.uploaded_file4 = None
+@st.dialog("歡迎使用")
+def enter_info(SYSTEM_VERSION):
+    # st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
+    st.write("這是用於提報計畫時的估算工具")
+    st.info("作者:**林宗漢**")
+    with st.container(border=True):
+        st.write(":clapper: 影片教學(20241120)")
+        st.video("./video/demo.mp4")
 
+    st.session_state.logged_in = True
 def main():
+
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
 
     SYSTEM_VERSION="V2.0.0"
 
@@ -637,14 +676,28 @@ def main():
         initial_sidebar_state="expanded",
     )
 
+    if st.session_state.logged_in == False: enter_info(SYSTEM_VERSION)
+
+    if "test_mode" not in st.session_state:
+        st.session_state.test_mode = False
+    try:
+        if st.query_params["test_mode"] == "1":
+            st.session_state.test_mode =True
+    except:
+        pass
+
+    if st.sidebar.button("回饋表單"):
+        Feedback()
+
     session_initialize()
 
-    tutorial_page = st.Page("tutorial_page.py", title="系統操作流程", icon=":material/menu_book:")
-    info_page = st.Page("info_page.py", title="工程基本資料", icon=":material/description:")
+    tutorial_page = st.Page("view_tutorial.py", title="系統操作流程", icon=":material/menu_book:")
+    logs_page=st.Page("view_logs.py", title="版本更新日誌", icon=":material/list_alt:")
+    info_page = st.Page("view_info.py", title="工程基本資料", icon=":material/description:")
     map_page = st.Page("map_page.py", title="工程施作位置", icon=":material/map:")
     item_page = st.Page("item_page.py", title="工程內容概要", icon=":material/list_alt:")
 
-    pg=st.navigation([tutorial_page, info_page, map_page, item_page])
+    pg=st.navigation([tutorial_page,logs_page, info_page, map_page, item_page])
 
     pg.run()
 
@@ -674,7 +727,7 @@ def main():
     #         else:
     #             st.write("**:red[感謝你的意見提供! 如要繼續提供請重新整理]**")
         # st.markdown("---")
-        # st.json(st.session_state)
+
     #     st.markdown("---")
     #     st.subheader("選擇頁面")
 
@@ -702,6 +755,8 @@ def main():
     # print(st.session_state)
 
 if __name__ == "__main__":
+
     main()
-    st.sidebar.json(st.session_state)
-    print(st.session_state)
+
+    if st.session_state.test_mode ==True:
+        st.sidebar.json(st.session_state)
