@@ -703,4 +703,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # st.sidebar.json(st.session_state)
+    st.sidebar.json(st.session_state)
+    print(st.session_state)

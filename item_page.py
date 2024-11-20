@@ -10,7 +10,7 @@ from json_test import st_to_json
 from datetime import datetime,date
 import openpyxl
 from openpyxl.drawing.image import Image
-import os
+import os,io
 def get_basic_price_data():
     unit_price_data = {
         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
