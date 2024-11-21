@@ -1,23 +1,5 @@
 import streamlit as st
-import pandas as pd
-from tabs import render_falsework_tab, render_channel_tab, render_bridge_tab, render_road_tab, render_wall_tab
-import openpyxl
-from openpyxl.drawing.image import Image
-import os,io
-import folium
-from streamlit_folium import st_folium
-from pyproj import Transformer
-import datetime
-import requests
-import json
-from myImage import insert_image
-from openpyxl.drawing.image import Image as OpenpyxlImage
-from json_test import st_to_json
 from datetime import datetime,date
-import time 
-
-# 自定义 JSON 序列化器，用于处理日期字段
-
 # def get_basic_price_data():
 #     unit_price_data = {
 #         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
@@ -249,7 +231,6 @@ import time
 #         btn=st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
 #         os.remove(output_file)
 #         savedata()
-
 # def savedata():
 #     json_result = st_to_json(st.session_state)
 #     # 設置 Google Apps Script Web 應用程式的 URL
@@ -555,52 +536,6 @@ import time
                     
 #                     # st.json(st.session_state)
 
-
-# @st.dialog("回饋表單")
-# def Feedback():
-
-#     # with st.expander(":mega: 意見回饋"):
-
-#         if 'submitted' not in st.session_state:
-#             st.session_state.submitted = False
-
-#         with st.form("feedback",True):
-
-#             username = st.text_input(":small_blue_diamond: 姓名")
-#             email = st.text_input(":small_blue_diamond: 電子郵件")
-#             txt = st.text_area(":small_blue_diamond: 內容")
-
-#             if st.form_submit_button("送出"):
-
-#                 print(storeMSG(username, email, txt))
-#                 st.balloons()
-#                 st.toast("感謝你的意見回復!")
-
-#                 time.sleep(3)
-#                 st.rerun()
-
-
-# def storeMSG(username, email, txt):
-
-#     GAS_URL = st.secrets.GAS_URL_NOTIFY
-
-#     data = {
-#         'username': username,
-#         'email': email,
-#         'content': txt
-#     }
-
-#     try:
-#         response = requests.post(GAS_URL, json=data)
-#         response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
-#         # print(response.json())
-#         return response.json()
-#     except requests.exceptions.HTTPError as http_err:
-#         print(f'HTTP error occurred: {http_err}')
-#         return {'success': False, 'error': str(http_err)}
-#     except Exception as err:
-#         print(f'Other error occurred: {err}')
-#         return {'success': False, 'error': str(err)}
     
 def session_initialize():
 
@@ -636,8 +571,8 @@ def session_initialize():
 
         }
 
-    if 'current_page' not in st.session_state:
-        st.session_state['current_page'] = 'page0'
+    # if 'current_page' not in st.session_state:
+    #     st.session_state['current_page'] = 'page0'
 
         # 用來暫存點擊的座標
     if 'coords' not in st.session_state:
@@ -652,9 +587,18 @@ def session_initialize():
         st.session_state.uploaded_file3 = None
     if 'uploaded_file4' not in st.session_state:
         st.session_state.uploaded_file4 = None
+
+    if "test_mode" not in st.session_state:
+        st.session_state.test_mode = False
+    try:
+        if st.query_params["test_mode"] == "1":
+            st.session_state.test_mode =True
+    except:
+        pass
 @st.dialog("歡迎使用")
 def enter_info(SYSTEM_VERSION):
     # st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
+    st.header(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
     st.write("這是用於提報計畫時的估算工具")
     st.info("作者:**林宗漢**")
     with st.container(border=True):
@@ -678,17 +622,6 @@ def main():
 
     if st.session_state.logged_in == False: enter_info(SYSTEM_VERSION)
 
-    if "test_mode" not in st.session_state:
-        st.session_state.test_mode = False
-    try:
-        if st.query_params["test_mode"] == "1":
-            st.session_state.test_mode =True
-    except:
-        pass
-
-    # if st.sidebar.button("回饋表單"):
-    #     Feedback()
-
     session_initialize()
 
     tutorial_page = st.Page("view_tutorial.py", title="系統操作流程", icon=":material/menu_book:")
@@ -702,33 +635,7 @@ def main():
     pg.run()
 
     # with st.sidebar:
-    #     st.title(":globe_with_meridians: 工程估算系統 "+SYSTEM_VERSION)
-    #     st.write("這是用於提報計畫時的估算工具")
-    #     st.info("作者:**林宗漢**")
-    #     with st.expander(":clapper: 影片教學"):
-    #         st.video("./video/demo.mp4")
-    #     with st.expander(":mega: 意見回饋"):
 
-    #         if 'submitted' not in st.session_state:
-    #             st.session_state.submitted = False
-
-    #         username = st.text_input(":small_blue_diamond: 姓名")
-    #         email = st.text_input(":small_blue_diamond: 電子郵件")
-    #         txt = st.text_area(":small_blue_diamond: 內容")
-
-    #         if not st.session_state.submitted:
-    #             if st.button("送出",type='primary'):
-
-    #                 storeMSG(username, email, txt)
-    #                 st.balloons()
-    #                 st.toast("感謝你的意見回復!")
-    #                 st.session_state.submitted = True
-    #                 st.rerun()
-    #         else:
-    #             st.write("**:red[感謝你的意見提供! 如要繼續提供請重新整理]**")
-        # st.markdown("---")
-
-    #     st.markdown("---")
     #     st.subheader("選擇頁面")
 
     #     if st.button("0.系統操作流程"):
@@ -740,9 +647,6 @@ def main():
     #     if st.button("3.工程內容概要"):
     #         st.session_state.current_page = 'page3'
             
-        # st.markdown("---")
-        # st.subheader("操作按鈕")
-
     # if st.session_state.current_page == 'page1':
     #     render_page1()
     # elif st.session_state.current_page == 'page2':
@@ -751,8 +655,6 @@ def main():
     #     render_page3()
     # else:
     #     render_page0()
-
-    # print(st.session_state)
 
 if __name__ == "__main__":
 
