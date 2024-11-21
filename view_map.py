@@ -3,6 +3,37 @@ import folium
 from streamlit_folium import st_folium
 from pyproj import Transformer
 
+def add_marker(folium_map, lat, lon, label):
+    folium.Marker(
+        location=[lat, lon],
+        popup=f"{label}<br>經度: {lon}<br>緯度: {lat}",
+        icon=folium.Icon(icon="info-sign"),
+    ).add_to(folium_map)
+
+def tranTWD97(lat,lon):
+
+    tmp_lat=st.session_state.tmp_lat
+    tmp_lon=st.session_state.tmp_lon
+
+    if lat == tmp_lat and lon == tmp_lon:
+    
+        transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
+        twd97_x, twd97_y = transformer.transform(lat, lon)
+        # st.toast("📋目前座標沒有更新!")
+
+        return twd97_x,twd97_y
+    
+    else:
+        st.session_state.tmp_lat=lat
+        st.session_state.tmp_lon=lon
+
+        transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
+        twd97_x, twd97_y = transformer.transform(lat, lon)
+        st.toast("📋目前座標已經更新!")
+
+        return twd97_x,twd97_y
+    
+
 col1,col2=st.columns([6,2])
 
 with col1:
@@ -15,21 +46,15 @@ with col1:
     else :
         st.subheader("**如果要重新點選請先清空所有座標**")
     col12,col22=st.columns([1,1])
+
     with col12:
         check_satellite = st.checkbox(":earth_africa: 打開衛星雲圖")
     with col22:
         check_channel= st.checkbox(":bar_chart: 打開渠道圖層")
+
     # 定義地圖的初始位置和縮放級別
     initial_location = [23.7089, 120.5406]  # 這裡使用台中的經緯度
     initial_zoom = 10
-
-    # 添加點擊事件處理
-    def add_marker(folium_map, lat, lon, label):
-        folium.Marker(
-            location=[lat, lon],
-            popup=f"{label}<br>經度: {lon}<br>緯度: {lat}",
-            icon=folium.Icon(icon="info-sign"),
-        ).add_to(folium_map)
 
     # 創建一個 Folium 地圖
     map = folium.Map(location=initial_location, zoom_start=initial_zoom)
@@ -59,7 +84,6 @@ with col1:
         ).add_to(map)
         folium.LayerControl().add_to(map)
 
-
     # 顯示儲存的標記
     for i, coord in enumerate(st.session_state['coords']):
         add_marker(map, coord['lat'], coord['lon'], label=f"點 {i + 1}")
@@ -67,17 +91,15 @@ with col1:
     # 顯示 Folium 地圖並捕捉點擊事件
     map_data = st_folium(map, width=1000, height=500)
 
-    # 如果有點擊事件，獲取點擊的位置
-    if map_data and map_data['last_clicked']:
+    if  map_data['last_clicked']:
+
         lat = map_data['last_clicked']['lat']
         lon = map_data['last_clicked']['lng']
         
-        # 轉換坐標系統
-        transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
-        twd97_x, twd97_y = transformer.transform(lat, lon)
+        twd97_x,twd97_y=tranTWD97(lat,lon)
 
-        # 顯示暫存的坐標
-        st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
+        st.sidebar.markdown(f"	:round_pushpin: 目前坐標(TWD97):\n\nX: {twd97_x:.3f}\n\n Y: {twd97_y:.3f}")
+
 
     st.info("如果地圖打開有困難的話，需要將網頁重新開啟，他需要先下載東西下來才能看的到。")
 
@@ -111,6 +133,6 @@ with col2:
             st.markdown(" #### 會勘點")
 
         # st.markdown(f"#### 點 {i + 1}")
-        st.write(f"X: {coord['twd97_x']}")
-        st.write(f"Y: {coord['twd97_y']}")
+        st.write(f"X: {coord['twd97_x']:.3f}")
+        st.write(f"Y: {coord['twd97_y']:.3f}")
         st.markdown("---")
