@@ -556,51 +556,51 @@ import time
 #                     # st.json(st.session_state)
 
 
-@st.dialog("回饋表單")
-def Feedback():
+# @st.dialog("回饋表單")
+# def Feedback():
 
-    # with st.expander(":mega: 意見回饋"):
+#     # with st.expander(":mega: 意見回饋"):
 
-        if 'submitted' not in st.session_state:
-            st.session_state.submitted = False
+#         if 'submitted' not in st.session_state:
+#             st.session_state.submitted = False
 
-        with st.form("feedback",True):
+#         with st.form("feedback",True):
 
-            username = st.text_input(":small_blue_diamond: 姓名")
-            email = st.text_input(":small_blue_diamond: 電子郵件")
-            txt = st.text_area(":small_blue_diamond: 內容")
+#             username = st.text_input(":small_blue_diamond: 姓名")
+#             email = st.text_input(":small_blue_diamond: 電子郵件")
+#             txt = st.text_area(":small_blue_diamond: 內容")
 
-            if st.form_submit_button("送出"):
+#             if st.form_submit_button("送出"):
 
-                print(storeMSG(username, email, txt))
-                st.balloons()
-                st.toast("感謝你的意見回復!")
+#                 print(storeMSG(username, email, txt))
+#                 st.balloons()
+#                 st.toast("感謝你的意見回復!")
 
-                time.sleep(3)
-                st.rerun()
+#                 time.sleep(3)
+#                 st.rerun()
 
 
-def storeMSG(username, email, txt):
+# def storeMSG(username, email, txt):
 
-    GAS_URL = st.secrets.GAS_URL_NOTIFY
+#     GAS_URL = st.secrets.GAS_URL_NOTIFY
 
-    data = {
-        'username': username,
-        'email': email,
-        'content': txt
-    }
+#     data = {
+#         'username': username,
+#         'email': email,
+#         'content': txt
+#     }
 
-    try:
-        response = requests.post(GAS_URL, json=data)
-        response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
-        # print(response.json())
-        return response.json()
-    except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
-        return {'success': False, 'error': str(http_err)}
-    except Exception as err:
-        print(f'Other error occurred: {err}')
-        return {'success': False, 'error': str(err)}
+#     try:
+#         response = requests.post(GAS_URL, json=data)
+#         response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
+#         # print(response.json())
+#         return response.json()
+#     except requests.exceptions.HTTPError as http_err:
+#         print(f'HTTP error occurred: {http_err}')
+#         return {'success': False, 'error': str(http_err)}
+#     except Exception as err:
+#         print(f'Other error occurred: {err}')
+#         return {'success': False, 'error': str(err)}
     
 def session_initialize():
 
@@ -686,8 +686,8 @@ def main():
     except:
         pass
 
-    if st.sidebar.button("回饋表單"):
-        Feedback()
+    # if st.sidebar.button("回饋表單"):
+    #     Feedback()
 
     session_initialize()
 
