@@ -6,7 +6,7 @@ import requests
 import json
 from myImage import insert_image
 from openpyxl.drawing.image import Image as OpenpyxlImage
-from json_test import st_to_json
+# from json_test import st_to_json
 from datetime import datetime,date
 import openpyxl
 from openpyxl.drawing.image import Image
@@ -245,18 +245,21 @@ def generateXLS(report):
         savedata()
 
 def savedata():
-    json_result = st_to_json(st.session_state)
-    # 設置 Google Apps Script Web 應用程式的 URL
-    url =st.secrets.GAS_URL 
-    with st.sidebar:
-        with st.spinner("...資料儲存中..."):
-            # 發送 POST 請求並傳遞 JSON 資料
-            response = requests.post(url, data=json_result)
-            # 檢查請求是否成功
-            if response.status_code == 200:
-                st.write("資料儲存成功!")
-            else:
-                st.write("Error:", response.status_code)
+
+    st.toast("📋","功能開發中!資料庫重新建立")
+
+    # json_result = st_to_json(st.session_state)
+    # # 設置 Google Apps Script Web 應用程式的 URL
+    # url =st.secrets.GAS_URL 
+    # with st.sidebar:
+    #     with st.spinner("...資料儲存中..."):
+    #         # 發送 POST 請求並傳遞 JSON 資料
+    #         response = requests.post(url, data=json_result)
+    #         # 檢查請求是否成功
+    #         if response.status_code == 200:
+    #             st.write("資料儲存成功!")
+    #         else:
+    #             st.write("Error:", response.status_code)
 
 #===== 以下為版面 =====
 

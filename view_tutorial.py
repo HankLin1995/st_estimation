@@ -18,11 +18,11 @@ def Feedback():
 
             if st.form_submit_button("送出"):
 
-                print(storeMSG(username, email, txt))
-                st.balloons()
-                st.toast("感謝你的意見回復!")
+                # print(storeMSG(username, email, txt))
+                # st.balloons()
+                st.info("功能開發中~")#謝你的意見回復!")
 
-                time.sleep(3)
+                time.sleep(2)
                 st.rerun()
 
 
@@ -54,6 +54,6 @@ with open("./md/SP.md", "r", encoding="utf-8") as file:
 with st.container(border=True):
     st.markdown(markdown_text)
 
-if st.sidebar.button("回饋表單"):
+if st.sidebar.button("回饋表單", type="primary"):
     Feedback()
 
