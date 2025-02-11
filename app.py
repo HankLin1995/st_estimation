@@ -16,6 +16,7 @@ def session_initialize():
         st.session_state['totalcost'] = 0
 
     if 'inf' not in st.session_state:
+        
         st.session_state['inf'] = {
             'timestamp': datetime.now(),
             'work_place': '雲林縣',
@@ -87,6 +88,8 @@ def main():
         initial_sidebar_state="expanded",
     )
 
+    st.logo("LOGO.PNG")
+
     if st.session_state.logged_in == False: enter_info(SYSTEM_VERSION)
 
     session_initialize()
@@ -98,13 +101,12 @@ def main():
     item_page = st.Page("item_page.py", title="工程內容概要", icon=":material/list_alt:")
 
     pg=st.navigation({
-        
+
         "基礎教學": [tutorial_page,logs_page],
         "操作介面":[info_page, map_page, item_page]
     })
 
     pg.run()
-
 
 if __name__ == "__main__":
 
