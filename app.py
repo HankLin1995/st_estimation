@@ -475,6 +475,13 @@ def render_page2():
         st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
         st.rerun()
 
+    if st.sidebar.button('輸入座標',type='primary') and len(st.session_state['coords']) < 3 :
+        lat_input=st.sidebar.number_input('lat')
+        lon_input=st.sidebar.number_input('lon')
+        twd97_x,twd97_y=tranTWD97(lat_input,lon_input)
+        st.session_state['coords'].append({'lat': lat_input, 'lon': lon_input, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
+        st.rerun()
+
     # 顯示儲存的坐標
     if len(st.session_state['coords']) == 3:
         # st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
