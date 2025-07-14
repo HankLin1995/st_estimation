@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  st_estimation:
+    build: .
+    container_name: st_estimation_app
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    networks:
+      - st_estimation_network
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TUNNEL_TOKEN}
+    networks:
+      - st_estimation_network
+    restart: unless-stopped
+
+networks:
+  st_estimation_network:
+    name: st_estimation_network
+    driver: bridge
