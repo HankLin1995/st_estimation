@@ -475,6 +475,18 @@ def render_page2():
         st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
         st.rerun()
 
+    try:
+        twd97_x_input=st.sidebar.number_input('TWD97_X',value=twd97_x)
+        twd97_y_input=st.sidebar.number_input('TWD97_Y',value=twd97_y)
+    except:
+        twd97_x_input=st.sidebar.number_input('TWD97_X')
+        twd97_y_input=st.sidebar.number_input('TWD97_Y')
+    if st.sidebar.button('輸入座標',type='primary') and len(st.session_state['coords']) < 3 :
+        transformer = Transformer.from_crs("epsg:3826", "epsg:4326")
+        lat_input, lon_input = transformer.transform(twd97_x_input, twd97_y_input)
+        st.session_state['coords'].append({'lat': lat_input, 'lon': lon_input, 'twd97_x': twd97_x_input, 'twd97_y': twd97_y_input})
+        st.rerun()
+
     # 顯示儲存的坐標
     if len(st.session_state['coords']) == 3:
         # st.sidebar.warning("已經選取了兩個位置",icon="⚠️")
