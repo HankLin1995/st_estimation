@@ -247,7 +247,7 @@ def generateXLS(report):
             bytes_data = f.read()
         btn=st.sidebar.download_button(label='計算成果下載', data=bytes_data, file_name=output_file, type='primary')
         os.remove(output_file)
-        savedata()
+        # savedata()
 
 def savedata():
     json_result = st_to_json(st.session_state)
