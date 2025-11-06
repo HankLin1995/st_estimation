@@ -114,53 +114,53 @@ with col2:
             uploaded_file1 = st.file_uploader("現地近照", type=["png", "jpg", "jpeg"], key='upload1')
             if uploaded_file1 is not None:
                 st.session_state.uploaded_file1 = uploaded_file1
-                st.image(st.session_state.uploaded_file1, caption="現地近照", use_container_width=True)
+                st.image(st.session_state.uploaded_file1, caption="現地近照", width="stretch")
             else:
-                st.image(st.session_state.uploaded_file1, caption="現地近照", use_container_width=True)
+                st.image(st.session_state.uploaded_file1, caption="現地近照", width="stretch")
         else:
             uploaded_file1 = st.file_uploader("現地近照", type=["png", "jpg", "jpeg"], key='upload1')
             if uploaded_file1 is not None:
                 st.session_state.uploaded_file1 = uploaded_file1
-                st.image(st.session_state.uploaded_file1, caption="現地近照", use_container_width=True)
+                st.image(st.session_state.uploaded_file1, caption="現地近照", width="stretch")
 
     with tab2:
         if  st.session_state.uploaded_file2 is not None:
             uploaded_file2 = st.file_uploader("現地遠照", type=["png", "jpg", "jpeg"], key='upload2')
             if uploaded_file2 is not None:
                 st.session_state.uploaded_file2 = uploaded_file2
-                st.image(st.session_state.uploaded_file2, caption="現地遠照", use_container_width=True)
+                st.image(st.session_state.uploaded_file2, caption="現地遠照", width="stretch")
             else:
-                st.image(st.session_state.uploaded_file2, caption="現地遠照", use_container_width=True)
+                st.image(st.session_state.uploaded_file2, caption="現地遠照", width="stretch")
         else:
             uploaded_file2 = st.file_uploader("現地遠照", type=["png", "jpg", "jpeg"], key='upload2')
             if uploaded_file2 is not None:
                 st.session_state.uploaded_file2 = uploaded_file2
-                st.image(st.session_state.uploaded_file2, caption="現地遠照", use_container_width=True)
+                st.image(st.session_state.uploaded_file2, caption="現地遠照", width="stretch")
 
     with tab3:
         if st.session_state.uploaded_file3 is not None:
             uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
             if uploaded_file3 is not None:
                 st.session_state.uploaded_file3 = uploaded_file3
-                st.image(st.session_state.uploaded_file3, caption="設計簡圖", use_container_width=True)
+                st.image(st.session_state.uploaded_file3, caption="設計簡圖", width="stretch")
             else:
-                st.image(st.session_state.uploaded_file3, caption="設計簡圖", use_container_width=True)
+                st.image(st.session_state.uploaded_file3, caption="設計簡圖", width="stretch")
         else:
             uploaded_file3 = st.file_uploader("設計簡圖", type=["png", "jpg", "jpeg"], key='upload3')
             if uploaded_file3 is not None:
                 st.session_state.uploaded_file3 = uploaded_file3
-                st.image(st.session_state.uploaded_file3, caption="設計簡圖", use_container_width=True)
+                st.image(st.session_state.uploaded_file3, caption="設計簡圖", width="stretch")
 
     # with tab4:
     #     if  st.session_state.uploaded_file4 is not None:
     #         uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
     #         if uploaded_file4 is not None:
     #             st.session_state.uploaded_file4 = uploaded_file4
-    #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_container_width=True)
+    #             st.image(st.session_state.uploaded_file4, caption="位置圖", width="stretch")
     #         else:
-    #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_container_width=True)
+    #             st.image(st.session_state.uploaded_file4, caption="位置圖", width="stretch")
     #     else:
     #         uploaded_file4 = st.file_uploader("位置圖", type=["png", "jpg", "jpeg"], key='upload4')
     #         if uploaded_file4 is not None:
     #             st.session_state.uploaded_file4 = uploaded_file4
-    #             st.image(st.session_state.uploaded_file4, caption="位置圖", use_container_width=True)
+    #             st.image(st.session_state.uploaded_file4, caption="位置圖", width="stretch")

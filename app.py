@@ -94,11 +94,11 @@ def main():
 
     session_initialize()
 
-    tutorial_page = st.Page("view_tutorial.py", title="系統操作流程", icon=":material/menu_book:")
-    logs_page=st.Page("view_logs.py", title="版本更新日誌", icon=":material/list_alt:")
-    info_page = st.Page("view_info.py", title="工程基本資料", icon=":material/description:")
-    map_page = st.Page("view_map.py", title="工程施作位置", icon=":material/map:")
-    item_page = st.Page("item_page.py", title="工程內容概要", icon=":material/list_alt:")
+    tutorial_page = st.Page("view_tutorial.py", title="操作流程", icon=":material/menu_book:")
+    logs_page=st.Page("view_logs.py", title="更新日誌", icon=":material/list_alt:")
+    info_page = st.Page("view_info.py", title="基本資料", icon=":material/description:")
+    map_page = st.Page("view_map.py", title="施作位置", icon=":material/map:")
+    item_page = st.Page("view_item.py", title="內容概要", icon=":material/list_alt:")
 
     pg=st.navigation({
 

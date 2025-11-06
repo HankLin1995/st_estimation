@@ -80,7 +80,7 @@ def render_bridge_tab(edited_unit_price_df):
         material_df = pd.DataFrame(material_data)
 
     with st.expander(":signal_strength: 材料計算表(每座)"):
-        edited_material_df = st.data_editor(material_df, use_container_width=True, hide_index=True)
+        edited_material_df = st.data_editor(material_df, width="stretch", hide_index=True)
 
         merged_df = pd.merge(edited_material_df, edited_unit_price_df, on='材料', how='left')
 

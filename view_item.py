@@ -292,7 +292,7 @@ with col3:
     with st.expander(":globe_with_meridians: **估算成果**",True):
         coe_other = st.number_input(":star: **雜項費用係數**", min_value=0.0, value=0.1, step=0.05)
         cost_df = get_cost_data(coe_other)
-        st.dataframe(cost_df, hide_index=True, use_container_width=True)
+        st.dataframe(cost_df, hide_index=True, width="stretch")
         coe = st.number_input(":star: **間接費用係數**", min_value=0.0, value=0.3, step=0.05)
         sum_cost = cost_df['總價'].sum()
         other_cost = round(sum_cost * (1 + coe), -3) - sum_cost
