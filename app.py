@@ -100,12 +100,13 @@ def main():
     map_page = st.Page("view_map.py", title="施作位置", icon=":material/map:")
     item_page = st.Page("view_item.py", title="內容概要", icon=":material/list_alt:")
     projects_page = st.Page("view_projects.py", title="專案管理", icon=":material/folder:")
+    meeting_page = st.Page("view_meeting.py", title="會勘管理", icon=":material/event:")
 
     pg=st.navigation({
 
         "基礎教學": [tutorial_page,logs_page],
         "操作介面":[info_page, map_page, item_page],
-        "資料管理": [projects_page]
+        "資料管理": [projects_page, meeting_page]
     })
 
     pg.run()
