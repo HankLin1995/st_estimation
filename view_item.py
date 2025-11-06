@@ -288,7 +288,7 @@ def savedata():
                     "work_station": st.session_state['inf'].get('work_station', ''),
                     "work_name": st.session_state['inf'].get('work_name', ''),
                     "work_benefit": st.session_state['inf'].get('work_benefit', ''),
-                    "waterway_type": st.session_state['inf'].get('waterway_type', ''),  # 新增：水路分類
+                    "waterway_type": st.session_state['inf'].get('work_type', ''),  # 新增：水路分類
                     "benefit_description": st.session_state['inf'].get('benefit_description', ''),  # 新增：效益說明
                     "work_place_water": st.session_state['inf'].get('work_place_water', ''),
                     "work_place_detail": st.session_state['inf'].get('work_place_detail', ''),
@@ -312,14 +312,19 @@ def savedata():
                     # Save coordinates if available
                     if 'coords' in st.session_state and len(st.session_state['coords']) > 0:
                         saved_coords = []
+                        # 座標點描述對應
+                        coord_descriptions = ['起點', '終點', '會勘點']
+                        
                         for idx, coord in enumerate(st.session_state['coords']):
+                            # 根據順序設定描述
+                            description = coord_descriptions[idx] if idx < len(coord_descriptions) else f'座標點{idx + 1}'
+                            
                             coord_data = {
-                                "project_id": project_id,  # 使用後端返回的 integer id
+                                "project_id": project_id,
                                 "order": idx + 1,
                                 "twd97_x": coord.get('twd97_x', 0),
                                 "twd97_y": coord.get('twd97_y', 0),
-                                "wgs84_lat": coord.get('wgs84_lat'),  # 使用新欄位名稱
-                                "wgs84_lng": coord.get('wgs84_lng')   # 使用新欄位名稱
+                                "description": description
                             }
                             coord_result = api_client.create_coordinate(coord_data)
                             if coord_result:
@@ -330,31 +335,28 @@ def savedata():
                         else:
                             st.warning(f"⚠️ 座標儲存不完整：{len(saved_coords)}/{len(st.session_state['coords'])}")
                     
-                    # Save images if available (新增圖片儲存功能)
+                    # Save images if available (使用 upload_image API 實際上傳檔案)
                     saved_images = 0
                     image_mapping = {
-                        'uploaded_file1': '近照',    # 設計圖
-                        'uploaded_file2': '遠照',  # 近照
-                        'uploaded_file3': '設計圖'        # 遠照
+                        'uploaded_file1': '設計圖',
+                        'uploaded_file2': '近照',
+                        'uploaded_file3': '遠照'
                     }
                     
                     for file_key, image_type in image_mapping.items():
                         if hasattr(st.session_state, file_key) and getattr(st.session_state, file_key) is not None:
                             uploaded_file = getattr(st.session_state, file_key)
-                            image_data = {
-                                "project_id": project_id,
-                                "image_type": image_type,
-                                "file_name": uploaded_file.name,
-                                "file_path": f"/uploads/{project_id}/{uploaded_file.name}",
-                                "mime_type": uploaded_file.type if hasattr(uploaded_file, 'type') else "image/jpeg",
-                                "file_size": uploaded_file.size if hasattr(uploaded_file, 'size') else 0
-                            }
-                            image_result = api_client.create_image(image_data)
+                            # 使用 upload_image API 實際上傳檔案
+                            image_result = api_client.upload_image(
+                                project_id=project_id,
+                                image_type=image_type,
+                                file=uploaded_file
+                            )
                             if image_result:
                                 saved_images += 1
                     
                     if saved_images > 0:
-                        st.success(f"✅ 已儲存 {saved_images} 張圖片")
+                        st.success(f"✅ 已上傳 {saved_images} 張圖片")
                     
                     st.success("✅ 所有資料儲存完成!")
                 else:

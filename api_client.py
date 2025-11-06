@@ -143,8 +143,20 @@ class APIClient:
             return False
     
     # Image APIs
+    def upload_image(self, project_id: int, image_type: str, file) -> Optional[Dict]:
+        """Upload an image file"""
+        try:
+            url = f"{self.base_url}/api/images/upload/{project_id}"
+            files = {"file": (file.name, file.getvalue(), file.type)}
+            params = {"image_type": image_type}
+            response = requests.post(url, files=files, params=params, timeout=30)
+            return self._handle_response(response, "上傳圖片失敗")
+        except Exception as e:
+            st.error(f"上傳圖片時發生錯誤: {str(e)}")
+            return None
+    
     def create_image(self, image_data: Dict) -> Optional[Dict]:
-        """Create a new image"""
+        """Create a new image (metadata only)"""
         try:
             url = f"{self.base_url}/api/images/"
             response = requests.post(url, json=image_data, timeout=self.timeout)
@@ -189,6 +201,19 @@ class APIClient:
         except Exception as e:
             st.error(f"刪除圖片時發生錯誤: {str(e)}")
             return False
+    
+    def get_image_file(self, image_id: int) -> Optional[bytes]:
+        """Get image file content"""
+        try:
+            url = f"{self.base_url}/api/images/download/{image_id}"
+            response = requests.get(url, timeout=self.timeout)
+            if response.status_code == 200:
+                return response.content
+            else:
+                return None
+        except Exception as e:
+            st.error(f"獲取圖片時發生錯誤: {str(e)}")
+            return None
     
     def health_check(self) -> bool:
         """Check if backend API is healthy"""
