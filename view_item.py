@@ -11,6 +11,11 @@ from datetime import datetime,date
 import openpyxl
 from openpyxl.drawing.image import Image
 import os,io
+import uuid
+from api_client import APIClient
+
+# Initialize API Client
+api_client = APIClient()
 def get_basic_price_data():
     unit_price_data = {
         '材料': ['140kg/cm2混凝土','175kg/cm2混凝土' ,'210kg/cm2混凝土', '鋼筋', '甲種模板', '乙種模板','AC','碎石級配','CLSM'],
@@ -245,21 +250,120 @@ def generateXLS(report):
         savedata()
 
 def savedata():
-
-    st.toast("📋","功能開發中!資料庫重新建立")
-
-    # json_result = st_to_json(st.session_state)
-    # # 設置 Google Apps Script Web 應用程式的 URL
-    # url =st.secrets.GAS_URL 
-    # with st.sidebar:
-    #     with st.spinner("...資料儲存中..."):
-    #         # 發送 POST 請求並傳遞 JSON 資料
-    #         response = requests.post(url, data=json_result)
-    #         # 檢查請求是否成功
-    #         if response.status_code == 200:
-    #             st.write("資料儲存成功!")
-    #         else:
-    #             st.write("Error:", response.status_code)
+    """Save project and coordinates data to backend"""
+    try:
+        with st.sidebar:
+            with st.spinner("...資料儲存中..."):
+                # Check backend health first
+                if not api_client.health_check():
+                    st.error("❌ 無法連接到後端伺服器，請確認伺服器是否正在運行")
+                    return
+                
+                # Prepare project data (不再需要 project_id)
+                # 處理日期格式 - 加上時間部分以符合 datetime 格式
+                work_start_date = st.session_state['inf'].get('work_start_date')
+                work_end_date = st.session_state['inf'].get('work_end_date')
+                
+                # 將 date 轉換為 datetime 格式的 ISO 字串
+                start_date_str = None
+                if work_start_date:
+                    if isinstance(work_start_date, date) and not isinstance(work_start_date, datetime):
+                        # 如果是 date，轉換為 datetime（加上 00:00:00）
+                        start_date_str = datetime.combine(work_start_date, datetime.min.time()).isoformat()
+                    else:
+                        start_date_str = work_start_date.isoformat()
+                
+                end_date_str = None
+                if work_end_date:
+                    if isinstance(work_end_date, date) and not isinstance(work_end_date, datetime):
+                        # 如果是 date，轉換為 datetime（加上 00:00:00）
+                        end_date_str = datetime.combine(work_end_date, datetime.min.time()).isoformat()
+                    else:
+                        end_date_str = work_end_date.isoformat()
+                
+                project_data = {
+                    "work_place": st.session_state['inf'].get('work_place', ''),
+                    "work_place2": st.session_state['inf'].get('work_place2', ''),
+                    "work_manage": st.session_state['inf'].get('work_manage', ''),
+                    "work_station": st.session_state['inf'].get('work_station', ''),
+                    "work_name": st.session_state['inf'].get('work_name', ''),
+                    "work_benefit": st.session_state['inf'].get('work_benefit', ''),
+                    "waterway_type": st.session_state['inf'].get('waterway_type', ''),  # 新增：水路分類
+                    "benefit_description": st.session_state['inf'].get('benefit_description', ''),  # 新增：效益說明
+                    "work_place_water": st.session_state['inf'].get('work_place_water', ''),
+                    "work_place_detail": st.session_state['inf'].get('work_place_detail', ''),
+                    "work_water_check": st.session_state['inf'].get('work_water_check') == "是",
+                    "work_start_date": start_date_str,
+                    "work_end_date": end_date_str,
+                    "job_length": st.session_state['inf'].get('job_length', 0),
+                    "job_cost": st.session_state['inf'].get('job_cost', 0)
+                }
+                
+                # Save project
+                project_result = api_client.create_project(project_data)
+                
+                if project_result:
+                    # 儲存後端返回的 integer id
+                    project_id = project_result['id']
+                    st.session_state['inf']['backend_project_id'] = project_id
+                    
+                    st.success(f"✅ 專案已建立 (ID: {project_id})")
+                    
+                    # Save coordinates if available
+                    if 'coords' in st.session_state and len(st.session_state['coords']) > 0:
+                        saved_coords = []
+                        for idx, coord in enumerate(st.session_state['coords']):
+                            coord_data = {
+                                "project_id": project_id,  # 使用後端返回的 integer id
+                                "order": idx + 1,
+                                "twd97_x": coord.get('twd97_x', 0),
+                                "twd97_y": coord.get('twd97_y', 0),
+                                "wgs84_lat": coord.get('wgs84_lat'),  # 使用新欄位名稱
+                                "wgs84_lng": coord.get('wgs84_lng')   # 使用新欄位名稱
+                            }
+                            coord_result = api_client.create_coordinate(coord_data)
+                            if coord_result:
+                                saved_coords.append(coord_result)
+                        
+                        if len(saved_coords) == len(st.session_state['coords']):
+                            st.success(f"✅ 已儲存 {len(saved_coords)} 個座標點")
+                        else:
+                            st.warning(f"⚠️ 座標儲存不完整：{len(saved_coords)}/{len(st.session_state['coords'])}")
+                    
+                    # Save images if available (新增圖片儲存功能)
+                    saved_images = 0
+                    image_mapping = {
+                        'uploaded_file1': '近照',    # 設計圖
+                        'uploaded_file2': '遠照',  # 近照
+                        'uploaded_file3': '設計圖'        # 遠照
+                    }
+                    
+                    for file_key, image_type in image_mapping.items():
+                        if hasattr(st.session_state, file_key) and getattr(st.session_state, file_key) is not None:
+                            uploaded_file = getattr(st.session_state, file_key)
+                            image_data = {
+                                "project_id": project_id,
+                                "image_type": image_type,
+                                "file_name": uploaded_file.name,
+                                "file_path": f"/uploads/{project_id}/{uploaded_file.name}",
+                                "mime_type": uploaded_file.type if hasattr(uploaded_file, 'type') else "image/jpeg",
+                                "file_size": uploaded_file.size if hasattr(uploaded_file, 'size') else 0
+                            }
+                            image_result = api_client.create_image(image_data)
+                            if image_result:
+                                saved_images += 1
+                    
+                    if saved_images > 0:
+                        st.success(f"✅ 已儲存 {saved_images} 張圖片")
+                    
+                    st.success("✅ 所有資料儲存完成!")
+                else:
+                    st.error("❌ 專案建立失敗")
+                    
+    except Exception as e:
+        st.error(f"儲存過程發生錯誤: {str(e)}")
+        import traceback
+        st.error(traceback.format_exc())
 
 #===== 以下為版面 =====
 

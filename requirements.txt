@@ -6,3 +6,5 @@ folium
 streamlit_folium
 openpyxl
 pyproj
+requests
+python-dotenv
