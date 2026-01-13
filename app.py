@@ -240,6 +240,132 @@ def generateXLS(report):
             sheet.cell(row=6,column=8).value='V'
         sheet.cell(row=6,column=9).value=st.session_state.totalcost/1000
 
+        # 新增幾何參數分頁
+        if "幾何參數" not in workbook.sheetnames:
+            geometry_sheet = workbook.create_sheet("幾何參數")
+        else:
+            geometry_sheet = workbook["幾何參數"]
+
+        # 設定標題
+        geometry_sheet.cell(row=1, column=1).value = "工程幾何參數表"
+        geometry_sheet.cell(row=2, column=1).value = "項目"
+        geometry_sheet.cell(row=2, column=2).value = "參數名稱"
+        geometry_sheet.cell(row=2, column=3).value = "數值"
+        geometry_sheet.cell(row=2, column=4).value = "單位"
+
+        row_num = 3
+
+        # 渠道工程參數
+        if 'channel_width' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "渠道工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "寬度b"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('channel_width', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        if 'channel_height' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "渠道工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "高度H"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('channel_height', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        if 'channel_length' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "渠道工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "長度L"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('channel_length', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        # 版橋工程參數
+        if 'bridge_width' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "版橋工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "寬度W"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('bridge_width', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        if 'bridge_length' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "版橋工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "每座長度L"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('bridge_length', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        if 'bridge_cnt' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "版橋工程"
+            geometry_sheet.cell(row=row_num, column=2).value = "數量"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('bridge_cnt', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "座"
+            row_num += 1
+
+        # 擋土牆參數
+        if 'op' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "擋土牆"
+            geometry_sheet.cell(row=row_num, column=2).value = "型式"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('op', '')
+            geometry_sheet.cell(row=row_num, column=4).value = ""
+            row_num += 1
+
+        if 'wall_height_cm' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "擋土牆"
+            geometry_sheet.cell(row=row_num, column=2).value = "高度(重力式)"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('wall_height_cm', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "cm"
+            row_num += 1
+
+        if 'wall2_height_cm' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "擋土牆"
+            geometry_sheet.cell(row=row_num, column=2).value = "高度(懸臂式)"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('wall2_height_cm', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "cm"
+            row_num += 1
+
+        if 'wall_cnt' in st.session_state:
+            geometry_sheet.cell(row=row_num, column=1).value = "擋土牆"
+            geometry_sheet.cell(row=row_num, column=2).value = "施作長度"
+            geometry_sheet.cell(row=row_num, column=3).value = st.session_state.get('wall_cnt', 0)
+            geometry_sheet.cell(row=row_num, column=4).value = "m"
+            row_num += 1
+
+        # 道路工程參數
+        if 'data2' in st.session_state and st.session_state['data2']:
+            for i, road_data in enumerate(st.session_state['data2']):
+                if len(road_data) >= 4:
+                    geometry_sheet.cell(row=row_num, column=1).value = "道路工程"
+                    geometry_sheet.cell(row=row_num, column=2).value = f"材料類型{i+1}"
+                    geometry_sheet.cell(row=row_num, column=3).value = road_data[0]
+                    geometry_sheet.cell(row=row_num, column=4).value = ""
+                    row_num += 1
+                    
+                    geometry_sheet.cell(row=row_num, column=1).value = "道路工程"
+                    geometry_sheet.cell(row=row_num, column=2).value = f"施作面積{i+1}"
+                    geometry_sheet.cell(row=row_num, column=3).value = road_data[2]
+                    geometry_sheet.cell(row=row_num, column=4).value = "m2"
+                    row_num += 1
+
+        # 版樁工程參數
+        if 'data' in st.session_state and st.session_state['data']:
+            for i, pile_data in enumerate(st.session_state['data']):
+                if len(pile_data) >= 5:
+                    geometry_sheet.cell(row=row_num, column=1).value = "版樁工程"
+                    geometry_sheet.cell(row=row_num, column=2).value = f"材料類別{i+1}"
+                    geometry_sheet.cell(row=row_num, column=3).value = pile_data[0]
+                    geometry_sheet.cell(row=row_num, column=4).value = ""
+                    row_num += 1
+                    
+                    geometry_sheet.cell(row=row_num, column=1).value = "版樁工程"
+                    geometry_sheet.cell(row=row_num, column=2).value = f"材料長度{i+1}"
+                    geometry_sheet.cell(row=row_num, column=3).value = pile_data[1]
+                    geometry_sheet.cell(row=row_num, column=4).value = "m"
+                    row_num += 1
+                    
+                    geometry_sheet.cell(row=row_num, column=1).value = "版樁工程"
+                    geometry_sheet.cell(row=row_num, column=2).value = f"施作長度{i+1}"
+                    geometry_sheet.cell(row=row_num, column=3).value = pile_data[3]
+                    geometry_sheet.cell(row=row_num, column=4).value = "m"
+                    row_num += 1
+
         output_file = 'example.xlsx'
 
         workbook.save(output_file)
@@ -640,7 +766,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.7.5"
+    SYSTEM_VERSION="V1.8.0"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
