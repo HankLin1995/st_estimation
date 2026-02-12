@@ -366,6 +366,27 @@ def generateXLS(report):
                     geometry_sheet.cell(row=row_num, column=4).value = "m"
                     row_num += 1
 
+        # 渠道工程材料計算表
+        if 'channel_material_table' in st.session_state and st.session_state['channel_material_table']:
+            row_num += 2
+            geometry_sheet.cell(row=row_num, column=1).value = "渠道工程材料計算表(每進行米)"
+            row_num += 1
+            
+            geometry_sheet.cell(row=row_num, column=1).value = "材料"
+            geometry_sheet.cell(row=row_num, column=2).value = "數量"
+            geometry_sheet.cell(row=row_num, column=3).value = "單位"
+            geometry_sheet.cell(row=row_num, column=4).value = "單價"
+            geometry_sheet.cell(row=row_num, column=5).value = "複價"
+            row_num += 1
+            
+            for material in st.session_state['channel_material_table']:
+                geometry_sheet.cell(row=row_num, column=1).value = material.get('材料', '')
+                geometry_sheet.cell(row=row_num, column=2).value = material.get('數量', 0)
+                geometry_sheet.cell(row=row_num, column=3).value = material.get('單位', '')
+                geometry_sheet.cell(row=row_num, column=4).value = material.get('單價', 0)
+                geometry_sheet.cell(row=row_num, column=5).value = material.get('複價', 0)
+                row_num += 1
+
         output_file = 'example.xlsx'
 
         workbook.save(output_file)
@@ -766,7 +787,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.8.0"
+    SYSTEM_VERSION="V1.8.1"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,

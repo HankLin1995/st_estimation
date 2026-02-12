@@ -168,3 +168,5 @@ def render_channel_tab(edited_unit_price_df):
     st.session_state['costs']['open_channel']['total_cost'] = total_cost_len
     
     st.session_state['inf']['job_length'] = length
+    
+    st.session_state['channel_material_table'] = merged_df[['材料', '數量', '單位', '單價', '複價']].to_dict('records')
