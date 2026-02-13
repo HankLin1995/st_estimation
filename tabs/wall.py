@@ -105,12 +105,14 @@ def render_wall_tab(edited_unit_price_df):
     }
     material_df = pd.DataFrame(material_data)
 
-    with st.expander(":signal_strength: 材料計算表(每m)", expanded=IsExpander):
+    with st.expander(":signal_strength: 材料計算表(每 m)", expanded=IsExpander):
 
         edited_material_df = st.data_editor(material_df, use_container_width=True, hide_index=True)
 
-        merged_df = pd.merge(edited_material_df, edited_unit_price_df, on='材料', how='left')
+        merged_df = pd.merge(edited_material_df, edited_unit_price_df, on='材料', how='left', suffixes=('', '_price'))
 
+        if '單價' not in merged_df.columns:
+            merged_df['單價'] = 1
         merged_df['單價'] = merged_df['單價'].fillna(1)
         merged_df['複價'] = merged_df['數量'] * merged_df['單價']
 

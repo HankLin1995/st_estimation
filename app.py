@@ -787,7 +787,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.8.1"
+    SYSTEM_VERSION="V1.8.2"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
