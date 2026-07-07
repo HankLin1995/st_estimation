@@ -538,6 +538,9 @@ def render_page1():
 
 def render_page2():
 
+    if 'pending_coord' not in st.session_state:
+        st.session_state['pending_coord'] = None
+
     col1,col2=st.columns([6,2])
 
     with col1:
@@ -603,13 +606,19 @@ def render_page2():
         map_data = st_folium(map, width=1000, height=500)
 
         # 如果有點擊事件，獲取點擊的位置
-        if map_data and map_data['last_clicked']:
+        if map_data and map_data.get('last_clicked'):
             lat = map_data['last_clicked']['lat']
             lon = map_data['last_clicked']['lng']
             
             # 轉換坐標系統
             transformer = Transformer.from_crs("epsg:4326", "epsg:3826")
             twd97_x, twd97_y = transformer.transform(lat, lon)
+            st.session_state['pending_coord'] = {
+                'lat': lat,
+                'lon': lon,
+                'twd97_x': twd97_x,
+                'twd97_y': twd97_y,
+            }
 
             # 顯示暫存的坐標
             st.write(f"**TWD97 坐標:** X: {twd97_x}, Y: {twd97_y}")
@@ -618,14 +627,19 @@ def render_page2():
 
 
     # 顯示儲存按鈕
+    pending_coord = st.session_state.get('pending_coord')
     if st.sidebar.button('儲存座標',type='primary') and len(st.session_state['coords']) < 3 :
-        st.session_state['coords'].append({'lat': lat, 'lon': lon, 'twd97_x': twd97_x, 'twd97_y': twd97_y})
-        st.rerun()
+        if pending_coord:
+            st.session_state['coords'].append(pending_coord.copy())
+            st.session_state['pending_coord'] = None
+            st.rerun()
+        else:
+            st.sidebar.warning('請先在地圖上點選座標')
 
-    try:
-        twd97_x_input=st.sidebar.number_input('TWD97_X',value=twd97_x)
-        twd97_y_input=st.sidebar.number_input('TWD97_Y',value=twd97_y)
-    except:
+    if pending_coord:
+        twd97_x_input=st.sidebar.number_input('TWD97_X',value=float(pending_coord['twd97_x']))
+        twd97_y_input=st.sidebar.number_input('TWD97_Y',value=float(pending_coord['twd97_y']))
+    else:
         twd97_x_input=st.sidebar.number_input('TWD97_X')
         twd97_y_input=st.sidebar.number_input('TWD97_Y')
     if st.sidebar.button('輸入座標',type='primary') and len(st.session_state['coords']) < 3 :
@@ -677,16 +691,22 @@ def render_page3():
         st.markdown("#### :small_blue_diamond: 工程項目")
 
         tab_names = ["渠道工程", "版橋工程", "道路工程", "版樁工程", "擋土牆"]
-        tabs = st.tabs(tab_names)
-        with tabs[0]:
+        selected_tab = st.radio(
+            "工程類別",
+            tab_names,
+            horizontal=True,
+            key="construction_tab",
+            label_visibility="collapsed",
+        )
+        if selected_tab == tab_names[0]:
             render_channel_tab(edited_unit_price_df)
-        with tabs[1]:
+        elif selected_tab == tab_names[1]:
             render_bridge_tab(edited_unit_price_df)
-        with tabs[2]:
+        elif selected_tab == tab_names[2]:
             render_road_tab(edited_unit_price_df)
-        with tabs[3]:
+        elif selected_tab == tab_names[3]:
             render_falsework_tab(edited_falsework_price_df)
-        with tabs[4]:
+        elif selected_tab == tab_names[4]:
             render_wall_tab(edited_unit_price_df)
 
     with col3:
@@ -787,7 +807,7 @@ def session_initialize():
 
 def main():
 
-    SYSTEM_VERSION="V1.8.2"
+    SYSTEM_VERSION="V1.8.3"
 
     st.set_page_config(
         page_title="工程估算系統"+SYSTEM_VERSION,
